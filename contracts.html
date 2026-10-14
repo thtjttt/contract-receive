@@ -28,6 +28,24 @@
     <h1 class="page-title">รายการสัญญาที่ได้รับ</h1>
     <p class="page-subtitle">ค้นหาว่าลูกค้าส่งสัญญามาหรือยัง และได้รับวันที่เท่าไหร่</p>
 
+    <div class="view-switch">
+      <button type="button" data-view="mine">ของฉัน <span class="count">(<span class="n">0</span>)</span></button>
+      <button type="button" data-view="everyone">ของทุกคน <span class="count">(<span class="n">0</span>)</span></button>
+    </div>
+    <p id="view-note" class="view-note"></p>
+
+    <p id="loading" class="panel loading">กำลังโหลดข้อมูล…</p>
+    <p id="load-error" class="alert" hidden></p>
+
+    <div id="migrate" class="warning" hidden>
+      <p><strong>พบข้อมูลเดิม <span id="migrate-count">0</span> รายการ ที่เคยกรอกไว้ในเครื่องนี้</strong>
+        <br>ย้ายขึ้นระบบ เพื่อให้คนอื่นเห็นด้วย และไม่หายเมื่อเปลี่ยนเครื่อง</p>
+      <div class="form-actions">
+        <button type="button" id="migrate-yes" class="button">ย้ายขึ้นระบบ</button>
+        <button type="button" id="migrate-no" class="button button-light">ไม่ต้องย้าย</button>
+      </div>
+    </div>
+
     <div id="success" class="success" hidden></div>
 
     <div id="delete-confirm" class="warning delete-confirm" hidden>
@@ -70,6 +88,7 @@
           <tr>
             <th>ชื่อลูกค้า</th>
             <th>บริษัท</th>
+            <th class="recorder-col">ผู้บันทึก</th>
             <th>วันที่ได้รับสัญญา</th>
             <th>ใบเสร็จ</th>
             <th>วันที่ต้องส่งของ</th>
@@ -83,14 +102,15 @@
     <p id="empty" class="empty panel" hidden></p>
 
     <section class="panel backup">
-      <h2>สำรองข้อมูล</h2>
-      <p class="muted">ข้อมูลเก็บอยู่ในเบราว์เซอร์ของเครื่องนี้เท่านั้น ถ้าล้างข้อมูลเบราว์เซอร์หรือเปลี่ยนเครื่อง ข้อมูลจะหาย
-        ควรกด "ดาวน์โหลดสำรองข้อมูล" เก็บไว้เป็นประจำ (อย่างน้อยสัปดาห์ละครั้ง)
-        <br>ใน Chrome / Edge จะมีหน้าต่างให้เลือกโฟลเดอร์ที่จะเก็บไฟล์ ครั้งต่อไปจะเปิดที่โฟลเดอร์เดิมให้เอง</p>
+      <h2>สำรองข้อมูล / ไฟล์ Excel</h2>
+      <p class="muted">ข้อมูลเก็บอยู่บนระบบออนไลน์แล้ว เปิดจากเครื่องไหนก็เห็น
+        กด "ดาวน์โหลดสำรองข้อมูล" เพื่อเก็บสำเนาเป็นไฟล์ไว้เปิดด้วย Excel (ได้รายการตามมุมมองที่เลือกอยู่: ของฉัน หรือ ของทุกคน)
+        <br>ใน Chrome / Edge จะมีหน้าต่างให้เลือกโฟลเดอร์ที่จะเก็บไฟล์ ครั้งต่อไปจะเปิดที่โฟลเดอร์เดิมให้เอง
+        <br>"เพิ่มข้อมูลจากไฟล์" จะเพิ่มรายการในไฟล์เข้าเป็น "ของฉัน" (ไม่ลบรายการที่มีอยู่)</p>
       <div class="form-actions">
         <button type="button" id="backup-download" class="button">ดาวน์โหลดสำรองข้อมูล</button>
         <label class="button button-light">
-          นำข้อมูลกลับมาจากไฟล์
+          เพิ่มข้อมูลจากไฟล์
           <input type="file" id="restore-file" accept=".csv,text/csv" hidden>
         </label>
       </div>
@@ -99,7 +119,7 @@
       <div id="restore-confirm" class="warning restore-confirm" hidden>
         <p id="restore-summary"></p>
         <div class="form-actions">
-          <button type="button" id="restore-yes" class="button">ยืนยัน นำข้อมูลกลับมา</button>
+          <button type="button" id="restore-yes" class="button">ยืนยัน เพิ่มข้อมูล</button>
           <button type="button" id="restore-no" class="button button-light">ยกเลิก</button>
         </div>
       </div>
@@ -111,6 +131,7 @@
     บริษัท ยงสวัสดิ์ / บริษัท อมตะ &middot; ระบบรับเข้าสัญญาซื้อขาย
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <script src="data.js"></script>
   <script src="contracts.js"></script>
   <script src="backup.js"></script>

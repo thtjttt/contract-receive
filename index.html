@@ -28,8 +28,8 @@
     <h1 class="page-title">ยินดีต้อนรับ</h1>
     <p class="page-subtitle">เลือกเมนูตามงานที่ต้องการ</p>
 
-    <a id="receipt-alert" class="alert alert-link" href="contracts.html?filter=noreceipt" hidden>
-      <span>⚠ มี <strong id="missing-count">0</strong> รายการ ยังไม่ได้รับใบเสร็จจากลูกค้า <span id="missing-detail"></span></span>
+    <a id="receipt-alert" class="alert alert-link" href="contracts.html?view=mine&filter=noreceipt" hidden>
+      <span>⚠ มี <strong id="missing-count">0</strong> รายการ ยังไม่ได้รับใบเสร็จจากลูกค้า (ของคุณ) <span id="missing-detail"></span></span>
       <span class="go">ดูรายการ &rarr;</span>
     </a>
 
@@ -47,8 +47,8 @@
     </div>
 
     <div class="notice">
-      ข้อมูลที่กรอกจะเก็บอยู่ในเบราว์เซอร์ของเครื่องนี้เท่านั้น เครื่องอื่นจะไม่เห็น
-      <br>อย่าลืมกด "ดาวน์โหลดสำรองข้อมูล" (ท้ายหน้ารายการสัญญา) เก็บไว้เป็นประจำ
+      ข้อมูลเก็บอยู่บนระบบออนไลน์ เปิดจากเครื่องไหนก็เห็นข้อมูลเดียวกัน
+      <br>หน้ารายการสัญญามีปุ่ม "ของฉัน" (แก้ไขได้) และ "ของทุกคน" (ดูของทุกคนได้ แก้ได้เฉพาะของตัวเอง)
     </div>
   </main>
 
@@ -56,13 +56,19 @@
     บริษัท ยงสวัสดิ์ / บริษัท อมตะ &middot; ระบบรับเข้าสัญญาซื้อขาย
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <script src="data.js"></script>
   <script>
-    // เตือนบนหน้าแรก ถ้ามีรายการที่ยังไม่ได้รับใบเสร็จ
-    const missing = missingReceipts(loadContracts());
-    document.getElementById("missing-count").textContent = missing.length;
-    document.getElementById("missing-detail").textContent = missing.length ? "(" + companySummary(missing) + ")" : "";
-    document.getElementById("receipt-alert").hidden = missing.length === 0;
+    // เตือนบนหน้าแรก ถ้ามีสัญญาของฉันที่ยังไม่ได้รับใบเสร็จ
+    (async () => {
+      const user = await requireUser();
+      let list = [];
+      try { list = (await fetchContracts()).filter((c) => c.userId === user.id); } catch (e) { return; }
+      const missing = missingReceipts(list);
+      document.getElementById("missing-count").textContent = missing.length;
+      document.getElementById("missing-detail").textContent = missing.length ? "(" + companySummary(missing) + ")" : "";
+      document.getElementById("receipt-alert").hidden = missing.length === 0;
+    })();
   </script>
 </body>
 </html>

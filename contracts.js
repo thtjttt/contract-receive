@@ -1,14 +1,18 @@
 /* ===== หน้ารายการสัญญาที่ได้รับ ===== */
 
-const contracts = loadContracts();
+let contracts = [];
 const searchBox = document.getElementById("search");
 const tableBody = document.getElementById("contract-rows");
+const dataTable = document.querySelector(".data-table");
 const resultInfo = document.getElementById("result-info");
 const emptyBox = document.getElementById("empty");
 const tableWrap = document.getElementById("table-wrap");
 const receiptAlert = document.getElementById("receipt-alert");
 const filterButtons = document.querySelectorAll("[data-filter]");
 const companyButtons = document.querySelectorAll("[data-company]");
+const viewButtons = document.querySelectorAll("[data-view]");
+const loadingBox = document.getElementById("loading");
+const errorBox = document.getElementById("load-error");
 
 const params = new URLSearchParams(location.search);
 // แถวที่เพิ่งบันทึกหรือเพิ่งแก้ (ส่งมาจากหน้าบันทึกรับสัญญา)
@@ -21,16 +25,38 @@ let currentFilter = params.get("filter") === "noreceipt" ? "noreceipt" : "all";
 // ตัวกรองบริษัท: "all" = ทุกบริษัท หรือรหัสบริษัท
 let currentCompany = COMPANIES.some((co) => co.key === params.get("company")) ? params.get("company") : "all";
 
+// มุมมอง: "mine" = ของฉัน (แก้ได้), "everyone" = ของทุกคน (ดูอย่างเดียว) จำไว้ในเครื่อง
+const VIEW_KEY = "contracts.view";
+let currentView = "mine";
+try { if (localStorage.getItem(VIEW_KEY) === "everyone") currentView = "everyone"; } catch (e) { /* ไม่เป็นไร */ }
+if (params.get("view") === "everyone" || params.get("view") === "mine") currentView = params.get("view");
+
+function isMine(c) {
+  return currentUser && c.userId === currentUser.id;
+}
+
+// สัญญาที่อยู่ในมุมมองปัจจุบัน
+function inView() {
+  return currentView === "mine" ? contracts.filter(isMine) : contracts;
+}
+
+function showError(message) {
+  errorBox.hidden = false;
+  errorBox.textContent = message;
+  errorBox.scrollIntoView({ block: "center" });
+}
+
 // ช่องใบเสร็จ: ได้รับแล้ว = วันที่สีเขียว, ยังไม่ได้รับ = บอกว่ารอมากี่วัน
-function receiptCell(c) {
+function receiptCell(c, editable) {
+  const lock = editable ? "" : " disabled";
   if (c.receiptDate) {
     return '<label class="check check-done">' +
-      '<input type="checkbox" data-receipt="' + c.id + '" checked>' +
+      '<input type="checkbox" data-receipt="' + c.id + '" checked' + lock + ">" +
       "ได้รับ " + formatThaiDate(c.receiptDate) + "</label>";
   }
   const waited = -daysUntil(c.receivedDate);
   return '<label class="check check-missing">' +
-    '<input type="checkbox" data-receipt="' + c.id + '">' +
+    '<input type="checkbox" data-receipt="' + c.id + '"' + lock + ">" +
     "ยังไม่ได้รับ</label>" +
     '<div class="wait-note">' + (waited > 0 ? "รอมา " + waited + " วัน" : "สัญญามาถึงวันนี้") + "</div>";
 }
@@ -38,7 +64,18 @@ function receiptCell(c) {
 function render() {
   const typed = searchBox.value.trim();
   const keyword = typed.toLowerCase();
-  const missing = missingReceipts(contracts);
+  const viewList = inView();
+  const missing = missingReceipts(viewList);
+
+  // ปุ่มสลับมุมมอง และคอลัมน์ผู้บันทึก (แสดงเฉพาะ "ของทุกคน")
+  viewButtons.forEach((b) => {
+    b.classList.toggle("active", b.dataset.view === currentView);
+    b.querySelector(".n").textContent = b.dataset.view === "mine" ? contracts.filter(isMine).length : contracts.length;
+  });
+  dataTable.classList.toggle("show-recorder", currentView === "everyone");
+  document.getElementById("view-note").textContent = currentView === "mine"
+    ? "แสดงเฉพาะสัญญาที่คุณบันทึก แก้ไข ลบ และติ๊กได้"
+    : "แสดงสัญญาของทุกคน แก้ไขได้เฉพาะรายการของคุณ (รายการของคนอื่นดูได้อย่างเดียว)";
 
   // แถบเตือนใบเสร็จ (บอกแยกบริษัท)
   receiptAlert.hidden = missing.length === 0;
@@ -46,13 +83,13 @@ function render() {
   document.getElementById("missing-detail").textContent = missing.length ? "(" + companySummary(missing) + ")" : "";
 
   // ตัวเลขบนปุ่มกรอง: นับตามบริษัทที่เลือกอยู่
-  const inCompany = contracts.filter((c) => currentCompany === "all" || c.company === currentCompany);
+  const inCompany = viewList.filter((c) => currentCompany === "all" || c.company === currentCompany);
   document.getElementById("count-all").textContent = inCompany.length;
   document.getElementById("count-noreceipt").textContent = missingReceipts(inCompany).length;
   filterButtons.forEach((b) => b.classList.toggle("active", b.dataset.filter === currentFilter));
 
   // ตัวเลขบนปุ่มบริษัท: นับตามสถานะใบเสร็จที่เลือกอยู่
-  const inStatus = currentFilter === "all" ? contracts : missing;
+  const inStatus = currentFilter === "all" ? viewList : missing;
   companyButtons.forEach((b) => {
     const key = b.dataset.company;
     b.classList.toggle("active", key === currentCompany);
@@ -68,6 +105,8 @@ function render() {
     .sort((a, b) => b.receivedDate.localeCompare(a.receivedDate) || b.id - a.id);
 
   tableBody.innerHTML = rows.map((c) => {
+    const mine = isMine(c);
+    const lock = mine ? "" : " disabled";
     const left = daysUntil(c.deliverDate);
     const soon = left >= 0 && left <= SOON_DAYS;
     const classes = [soon ? "row-soon" : "", c.id === newId ? "row-new" : ""].join(" ").trim();
@@ -75,19 +114,24 @@ function render() {
     if (soon) {
       note = '<div class="soon-note">' + (left === 0 ? "ต้องส่งของวันนี้" : "อีก " + left + " วันถึงวันส่งของ") + "</div>";
     }
+    const actions = mine
+      ? '<div class="row-actions">' +
+        '<a class="small-button" href="add-contract.html?edit=' + c.id + '">แก้ไข</a>' +
+        '<button type="button" class="small-button danger" data-delete="' + c.id + '">ลบ</button>' +
+        "</div>"
+      : '<span class="muted">ดูอย่างเดียว</span>';
     return "<tr" + (classes ? ' class="' + classes + '"' : "") + ">" +
       '<td data-label="ชื่อลูกค้า">' + escapeHtml(c.customer) + "</td>" +
       '<td data-label="บริษัท">' + companyBadge(c.company) + "</td>" +
+      '<td data-label="ผู้บันทึก" class="recorder-col" title="' + escapeHtml(c.recorder || "") + '">' +
+        "<span>" + escapeHtml(recorderName(c.recorder)) + (mine ? ' <span class="muted">(คุณ)</span>' : "") + "</span></td>" +
       '<td data-label="วันที่ได้รับสัญญา">' + formatThaiDate(c.receivedDate) + "</td>" +
-      '<td data-label="ใบเสร็จ">' + receiptCell(c) + "</td>" +
+      '<td data-label="ใบเสร็จ">' + receiptCell(c, mine) + "</td>" +
       '<td data-label="วันที่ต้องส่งของ"><div>' + formatThaiDate(c.deliverDate) + "</div>" + note + "</td>" +
       '<td data-label="ส่งเอกสารรอถอนเงินค้ำ"><label class="check' + (c.guaranteeSent ? " check-done" : "") + '">' +
-      '<input type="checkbox" data-guarantee="' + c.id + '"' + (c.guaranteeSent ? " checked" : "") + ">" +
+      '<input type="checkbox" data-guarantee="' + c.id + '"' + (c.guaranteeSent ? " checked" : "") + lock + ">" +
       (c.guaranteeSent ? "ส่งแล้ว" : "ยังไม่ส่ง") + "</label></td>" +
-      '<td data-label="จัดการ"><div class="row-actions">' +
-      '<a class="small-button" href="add-contract.html?edit=' + c.id + '">แก้ไข</a>' +
-      '<button type="button" class="small-button danger" data-delete="' + c.id + '">ลบ</button>' +
-      "</div></td>" +
+      '<td data-label="จัดการ">' + actions + "</td>" +
       "</tr>";
   }).join("");
 
@@ -100,6 +144,7 @@ function render() {
     emptyBox.hidden = false;
     if (keyword) {
       emptyBox.innerHTML = 'ยังไม่พบการรับสัญญาของ "<strong>' + escapeHtml(typed) + '</strong>"' + scope +
+        (currentView === "mine" ? " (ในรายการของคุณ ลองกด \"ของทุกคน\")" : "") +
         '<br><a href="add-contract.html">ได้รับแล้ว? กดเพื่อบันทึกรับสัญญา</a>';
     } else if (currentFilter === "noreceipt") {
       emptyBox.textContent = "ได้รับใบเสร็จครบทุกรายการแล้ว" + (currentCompany === "all" ? "" : " (บริษัท" + companyLabel(currentCompany) + ")");
@@ -129,29 +174,33 @@ companyButtons.forEach((b) => b.addEventListener("click", () => {
   currentCompany = b.dataset.company;
   render();
 }));
+viewButtons.forEach((b) => b.addEventListener("click", () => {
+  currentView = b.dataset.view;
+  try { localStorage.setItem(VIEW_KEY, currentView); } catch (e) { /* ไม่เป็นไร */ }
+  render();
+}));
 document.getElementById("show-missing").addEventListener("click", () => {
   currentCompany = "all";
   setFilter("noreceipt");
 });
 
-// ติ๊กในตารางแล้วบันทึกทันที
-tableBody.addEventListener("change", (event) => {
+// ติ๊กในตารางแล้วบันทึกทันที (เฉพาะรายการของตัวเอง)
+tableBody.addEventListener("change", async (event) => {
   const box = event.target;
   const id = Number(box.dataset.receipt || box.dataset.guarantee);
   const item = contracts.find((c) => c.id === id);
-  if (!item) return;
-  const before = { receiptDate: item.receiptDate, guaranteeSent: item.guaranteeSent };
+  if (!item || !isMine(item)) return;
 
-  if (box.dataset.receipt) {
+  const changes = box.dataset.receipt
     // ติ๊ก = ได้รับใบเสร็จวันนี้, เอาติ๊กออก = กลับเป็นยังไม่ได้รับ
-    item.receiptDate = box.checked ? todayISO() : "";
-  } else {
-    item.guaranteeSent = box.checked;
-  }
+    ? { receiptDate: box.checked ? todayISO() : "" }
+    : { guaranteeSent: box.checked };
 
-  if (!saveContracts(contracts)) {
-    alert("บันทึกไม่สำเร็จ เบราว์เซอร์อาจปิดการเก็บข้อมูลไว้");
-    Object.assign(item, before);
+  box.disabled = true;
+  try {
+    Object.assign(item, await updateContract(id, changes));
+  } catch (e) {
+    showError("บันทึกการติ๊กไม่สำเร็จ: " + friendlyError(e));
   }
   render();
 });
@@ -162,7 +211,7 @@ tableBody.addEventListener("click", (event) => {
   const button = event.target.closest("[data-delete]");
   if (!button) return;
   const item = contracts.find((c) => c.id === Number(button.dataset.delete));
-  if (!item) return;
+  if (!item || !isMine(item)) return;
   pendingDeleteId = item.id;
   document.getElementById("delete-summary").innerHTML =
     "ลบสัญญาของ <strong>" + escapeHtml(item.customer) + "</strong>" +
@@ -176,49 +225,111 @@ document.getElementById("delete-no").addEventListener("click", () => {
   deleteConfirm.hidden = true;
 });
 
-document.getElementById("delete-yes").addEventListener("click", () => {
-  const index = contracts.findIndex((c) => c.id === pendingDeleteId);
+document.getElementById("delete-yes").addEventListener("click", async () => {
+  const item = contracts.find((c) => c.id === pendingDeleteId);
   deleteConfirm.hidden = true;
   pendingDeleteId = null;
-  if (index < 0) return;
-  const [removed] = contracts.splice(index, 1);
-  if (!saveContracts(contracts)) {
-    contracts.splice(index, 0, removed);
-    alert("ลบไม่สำเร็จ เบราว์เซอร์อาจปิดการเก็บข้อมูลไว้");
+  if (!item) return;
+  try {
+    await removeContract(item.id);
+  } catch (e) {
+    showError("ลบไม่สำเร็จ: " + friendlyError(e));
     return;
   }
+  contracts = contracts.filter((c) => c !== item);
   render();
 
   // แถบข้อความ พร้อมปุ่มเอากลับคืน
   successBox.hidden = false;
-  successBox.innerHTML = 'ลบสัญญาของ "' + escapeHtml(removed.customer) + '" แล้ว' +
+  successBox.innerHTML = 'ลบสัญญาของ "' + escapeHtml(item.customer) + '" แล้ว' +
     '<button type="button" class="link-button" id="undo-delete">เอากลับคืน</button>';
-  document.getElementById("undo-delete").addEventListener("click", () => {
-    contracts.splice(Math.min(index, contracts.length), 0, removed);
-    if (!saveContracts(contracts)) {
-      contracts.splice(contracts.indexOf(removed), 1);
-      alert("เอากลับคืนไม่สำเร็จ เบราว์เซอร์อาจปิดการเก็บข้อมูลไว้");
-      return;
+  document.getElementById("undo-delete").addEventListener("click", async (ev) => {
+    ev.target.disabled = true;
+    try {
+      const [restored] = await addContracts([item]);
+      contracts.push(restored);
+      successBox.textContent = 'เอาสัญญาของ "' + item.customer + '" กลับคืนแล้ว';
+      render();
+    } catch (e) {
+      ev.target.disabled = false;
+      showError("เอากลับคืนไม่สำเร็จ: " + friendlyError(e));
     }
-    successBox.textContent = 'เอาสัญญาของ "' + removed.customer + '" กลับคืนแล้ว';
-    render();
   });
   successBox.scrollIntoView({ block: "center" });
 });
 
-render();
+/* ----- ย้ายข้อมูลที่เคยกรอกไว้ในเครื่องนี้ ขึ้นระบบ ----- */
 
-// แสดงข้อความสำเร็จ และเลื่อนไปที่แถวใหม่ / แถวที่แก้
-if (newId) {
-  const saved = contracts.find((c) => c.id === newId);
-  if (saved) {
-    const msg = successBox;
-    msg.hidden = false;
-    msg.textContent = params.get("edited")
-      ? 'แก้ไขสัญญาของ "' + saved.customer + '" เรียบร้อยแล้ว'
-      : 'บันทึกรับสัญญาของ "' + saved.customer + '" เรียบร้อยแล้ว' +
-        (saved.receiptDate ? "" : " (ยังไม่ได้รับใบเสร็จ ระบบจะเตือนไว้ให้)");
-    const row = document.querySelector(".row-new");
-    if (row) row.scrollIntoView({ block: "center" });
+function showMigrateBanner() {
+  const legacy = legacyContracts();
+  const banner = document.getElementById("migrate");
+  if (!legacy.length) { banner.hidden = true; return; }
+  document.getElementById("migrate-count").textContent = legacy.length;
+  banner.hidden = false;
+}
+
+document.getElementById("migrate-yes").addEventListener("click", async (ev) => {
+  const legacy = legacyContracts();
+  if (!legacy.length) return;
+  ev.target.disabled = true;
+  ev.target.textContent = "กำลังย้ายข้อมูล…";
+  try {
+    const added = await addContracts(legacy.map((c) => ({
+      company: COMPANIES.some((co) => co.key === c.company) ? c.company : "",
+      customer: c.customer,
+      receivedDate: c.receivedDate,
+      deliverDate: c.deliverDate,
+      receiptDate: c.receiptDate || "",
+      guaranteeSent: Boolean(c.guaranteeSent)
+    })));
+    markLegacyMigrated();
+    contracts = contracts.concat(added);
+    document.getElementById("migrate").hidden = true;
+    successBox.hidden = false;
+    successBox.textContent = "ย้ายข้อมูลเดิมขึ้นระบบเรียบร้อยแล้ว " + added.length + " รายการ";
+    currentView = "mine";
+    render();
+  } catch (e) {
+    ev.target.disabled = false;
+    ev.target.textContent = "ย้ายขึ้นระบบ";
+    showError("ย้ายข้อมูลไม่สำเร็จ: " + friendlyError(e));
+  }
+});
+
+document.getElementById("migrate-no").addEventListener("click", () => {
+  markLegacyMigrated();
+  document.getElementById("migrate").hidden = true;
+});
+
+/* ----- เริ่มต้น: เข้าสู่ระบบ แล้วโหลดข้อมูล ----- */
+
+async function start() {
+  await requireUser();
+  try {
+    contracts = await fetchContracts();
+  } catch (e) {
+    loadingBox.hidden = true;
+    showError("โหลดข้อมูลไม่สำเร็จ: " + friendlyError(e));
+    return;
+  }
+  loadingBox.hidden = true;
+  showMigrateBanner();
+  render();
+  document.dispatchEvent(new Event("contracts-loaded"));
+
+  // แสดงข้อความสำเร็จ และเลื่อนไปที่แถวใหม่ / แถวที่แก้
+  if (newId) {
+    const saved = contracts.find((c) => c.id === newId);
+    if (saved) {
+      successBox.hidden = false;
+      successBox.textContent = params.get("edited")
+        ? 'แก้ไขสัญญาของ "' + saved.customer + '" เรียบร้อยแล้ว'
+        : 'บันทึกรับสัญญาของ "' + saved.customer + '" เรียบร้อยแล้ว' +
+          (saved.receiptDate ? "" : " (ยังไม่ได้รับใบเสร็จ ระบบจะเตือนไว้ให้)");
+      const row = document.querySelector(".row-new");
+      if (row) row.scrollIntoView({ block: "center" });
+    }
   }
 }
+
+start();

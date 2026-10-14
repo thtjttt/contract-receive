@@ -1,4 +1,4 @@
-/* ===== สำรองข้อมูล และนำข้อมูลกลับมา (ไฟล์ .csv เปิดด้วย Excel ได้) ===== */
+/* ===== สำรองข้อมูลเป็นไฟล์ และเพิ่มข้อมูลจากไฟล์ (ไฟล์ .csv เปิดด้วย Excel ได้) ===== */
 
 const BACKUP_COLUMNS = [
   "ชื่อลูกค้า",
@@ -6,7 +6,8 @@ const BACKUP_COLUMNS = [
   "วันที่ได้รับใบเสร็จ",
   "วันที่ต้องส่งของ",
   "ส่งเอกสารรอถอนเงินค้ำ",
-  "บริษัท"
+  "บริษัท",
+  "ผู้บันทึก"
 ];
 
 const backupStatus = document.getElementById("backup-status");
@@ -31,14 +32,16 @@ function markBackedUp() {
 }
 
 async function downloadBackup() {
-  const list = loadContracts();
+  // ได้รายการตามมุมมองที่เลือกอยู่ (ของฉัน / ของทุกคน)
+  const list = inView();
   const lines = [BACKUP_COLUMNS.join(",")].concat(list.map((c) => [
     c.customer,
     c.receivedDate,
     c.receiptDate || "",
     c.deliverDate,
     c.guaranteeSent ? "ส่งแล้ว" : "ยังไม่ส่ง",
-    COMPANIES.some((co) => co.key === c.company) ? companyLabel(c.company) : ""
+    COMPANIES.some((co) => co.key === c.company) ? companyLabel(c.company) : "",
+    c.recorder || ""
   ].map(csvCell).join(",")));
 
   // \uFEFF ช่วยให้ Excel อ่านภาษาไทยถูก
@@ -91,16 +94,15 @@ async function downloadBackup() {
 function showBackupStatus() {
   let last = "";
   try { last = localStorage.getItem(BACKUP_KEY) || ""; } catch (e) { /* ไม่เป็นไร */ }
-  const count = loadContracts().length;
+  // ข้อมูลอยู่บนระบบออนไลน์แล้ว แค่บอกวันที่ดาวน์โหลดไฟล์ล่าสุด ไม่ต้องเตือน
+  backupStatus.className = "backup-status";
   if (!last) {
-    backupStatus.textContent = count ? "ยังไม่เคยสำรองข้อมูลในเครื่องนี้" : "";
-    backupStatus.className = count ? "backup-status backup-warn" : "backup-status";
+    backupStatus.textContent = "";
     return;
   }
   const ago = -daysUntil(last);
-  backupStatus.textContent = "สำรองล่าสุด: " + formatThaiDate(last) +
+  backupStatus.textContent = "ดาวน์โหลดไฟล์ล่าสุดจากเครื่องนี้: " + formatThaiDate(last) +
     (ago === 0 ? " (วันนี้)" : " (" + ago + " วันที่แล้ว)");
-  backupStatus.className = "backup-status" + (ago > 7 ? " backup-warn" : "");
 }
 
 /* ----- นำข้อมูลกลับมา ----- */
@@ -199,23 +201,27 @@ restoreInput.addEventListener("change", () => {
       showRestoreMessage(e.message, true);
       return;
     }
-    const current = loadContracts().length;
     document.getElementById("restore-summary").innerHTML =
       "ไฟล์ <strong>" + escapeHtml(file.name) + "</strong> มี <strong>" + pendingRestore.length + "</strong> รายการ" +
-      "<br>ข้อมูลในเครื่องนี้ตอนนี้ <strong>" + current + "</strong> รายการ จะถูก <strong>แทนที่ทั้งหมด</strong> ด้วยข้อมูลจากไฟล์";
+      "<br>จะ <strong>เพิ่ม</strong> ทั้งหมดเข้าเป็น “ของฉัน” (รายการที่มีอยู่แล้วไม่ถูกลบ)" +
+      "<br>⚠ ถ้าเคยเพิ่มไฟล์นี้ไปแล้ว รายการจะซ้ำ";
     restoreConfirm.hidden = false;
   };
   reader.onerror = () => showRestoreMessage("เปิดไฟล์ไม่ได้ กรุณาลองใหม่", true);
   reader.readAsText(file, "utf-8");
 });
 
-document.getElementById("restore-yes").addEventListener("click", () => {
+document.getElementById("restore-yes").addEventListener("click", async (ev) => {
   if (!pendingRestore) return;
-  if (!saveContracts(pendingRestore)) {
-    showRestoreMessage("นำข้อมูลกลับมาไม่สำเร็จ เบราว์เซอร์อาจปิดการเก็บข้อมูลไว้", true);
+  ev.target.disabled = true;
+  try {
+    await addContracts(pendingRestore);
+  } catch (e) {
+    ev.target.disabled = false;
+    showRestoreMessage("เพิ่มข้อมูลไม่สำเร็จ: " + friendlyError(e), true);
     return;
   }
-  location.href = "contracts.html?restored=" + pendingRestore.length;
+  location.href = "contracts.html?view=mine&restored=" + pendingRestore.length;
 });
 
 document.getElementById("restore-no").addEventListener("click", () => {
@@ -224,12 +230,12 @@ document.getElementById("restore-no").addEventListener("click", () => {
 });
 
 document.getElementById("backup-download").addEventListener("click", downloadBackup);
-showBackupStatus();
+document.addEventListener("contracts-loaded", showBackupStatus);
 
 // ข้อความหลังนำข้อมูลกลับมาสำเร็จ
 const restoredCount = new URLSearchParams(location.search).get("restored");
 if (restoredCount !== null) {
   const msg = document.getElementById("success");
   msg.hidden = false;
-  msg.textContent = "นำข้อมูลกลับมาเรียบร้อยแล้ว " + Number(restoredCount) + " รายการ";
+  msg.textContent = "เพิ่มข้อมูลจากไฟล์เรียบร้อยแล้ว " + Number(restoredCount) + " รายการ";
 }

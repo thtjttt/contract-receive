@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>เข้าสู่ระบบ | ระบบรับเข้าสัญญาซื้อขาย</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="inner">
+      <span class="brand">
+        ระบบรับเข้าสัญญาซื้อขาย
+        <small>บริษัท ยงสวัสดิ์ / บริษัท อมตะ</small>
+      </span>
+    </div>
+  </header>
+
+  <main>
+    <form id="login-form" class="panel form login-form" novalidate>
+      <h1 class="page-title">เข้าสู่ระบบ</h1>
+      <p class="page-subtitle">ใช้อีเมลและรหัสผ่านที่ได้รับจากผู้ดูแลระบบ</p>
+
+      <div class="field">
+        <label for="email">อีเมล</label>
+        <input id="email" type="email" autocomplete="username" placeholder="เช่น name@example.com">
+      </div>
+
+      <div class="field">
+        <label for="password">รหัสผ่าน</label>
+        <input id="password" type="password" autocomplete="current-password">
+      </div>
+
+      <p id="login-error" class="error"></p>
+
+      <div class="form-actions">
+        <button type="submit" id="login-button" class="button">เข้าสู่ระบบ</button>
+      </div>
+      <p class="hint">ลืมรหัสผ่าน หรือยังไม่มีบัญชี ติดต่อผู้ดูแลระบบ</p>
+    </form>
+  </main>
+
+  <footer class="site-footer">
+    บริษัท ยงสวัสดิ์ / บริษัท อมตะ &middot; ระบบรับเข้าสัญญาซื้อขาย
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+  <script src="data.js"></script>
+  <script src="login.js"></script>
+</body>
+</html>
