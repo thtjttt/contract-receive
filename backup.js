@@ -24,7 +24,13 @@ function csvCell(value) {
   return /[",\n\r]/.test(text) ? '"' + text.replace(/"/g, '""') + '"' : text;
 }
 
-function downloadBackup() {
+// จดว่าสำรองข้อมูลแล้ววันนี้
+function markBackedUp() {
+  try { localStorage.setItem(BACKUP_KEY, todayISO()); } catch (e) { /* ไม่เป็นไร */ }
+  showBackupStatus();
+}
+
+async function downloadBackup() {
   const list = loadContracts();
   const lines = [BACKUP_COLUMNS.join(",")].concat(list.map((c) => [
     c.customer,
@@ -35,19 +41,51 @@ function downloadBackup() {
     COMPANIES.some((co) => co.key === c.company) ? companyLabel(c.company) : ""
   ].map(csvCell).join(",")));
 
-  // ﻿ ช่วยให้ Excel อ่านภาษาไทยถูก
-  const blob = new Blob(["﻿" + lines.join("\r\n")], { type: "text/csv;charset=utf-8" });
+  // \uFEFF ช่วยให้ Excel อ่านภาษาไทยถูก
+  const blob = new Blob(["\uFEFF" + lines.join("\r\n")], { type: "text/csv;charset=utf-8" });
   const [y, m, d] = todayISO().split("-");
+  const fileName = "สำรองสัญญาซื้อขาย-" + (Number(y) + 543) + "-" + m + "-" + d + ".csv";
+  restoreMessage.hidden = true;
+
+  // Chrome / Edge บนคอมพิวเตอร์: เปิดหน้าต่าง "บันทึกเป็น…" ให้เลือกโฟลเดอร์
+  // ครั้งต่อไปจะเปิดที่โฟลเดอร์เดิมให้เอง (จำด้วย id)
+  if (window.showSaveFilePicker) {
+    let handle;
+    try {
+      handle = await window.showSaveFilePicker({
+        id: "contract-backup",
+        startIn: "documents",
+        suggestedName: fileName,
+        types: [{ description: "ไฟล์สำรองข้อมูล (เปิดด้วย Excel ได้)", accept: { "text/csv": [".csv"] } }]
+      });
+    } catch (e) {
+      if (e.name === "AbortError") return; // กดยกเลิก = ไม่บันทึก
+      handle = null; // เปิดหน้าต่างไม่ได้ ใช้วิธีดาวน์โหลดปกติแทน
+    }
+    if (handle) {
+      try {
+        const writable = await handle.createWritable();
+        await writable.write(blob);
+        await writable.close();
+      } catch (e) {
+        showRestoreMessage("บันทึกไฟล์ไม่สำเร็จ กรุณาลองใหม่ หรือเลือกโฟลเดอร์อื่น", true);
+        return;
+      }
+      markBackedUp();
+      showRestoreMessage("บันทึกไฟล์สำรอง \"" + handle.name + "\" เรียบร้อยแล้ว", false);
+      return;
+    }
+  }
+
+  // เบราว์เซอร์อื่น / มือถือ: ดาวน์โหลดลงโฟลเดอร์ Downloads ตามปกติ
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
-  link.download = "สำรองสัญญาซื้อขาย-" + (Number(y) + 543) + "-" + m + "-" + d + ".csv";
+  link.download = fileName;
   document.body.appendChild(link);
   link.click();
   link.remove();
   setTimeout(() => URL.revokeObjectURL(link.href), 1000);
-
-  try { localStorage.setItem(BACKUP_KEY, todayISO()); } catch (e) { /* ไม่เป็นไร */ }
-  showBackupStatus();
+  markBackedUp();
 }
 
 function showBackupStatus() {
@@ -107,7 +145,7 @@ function readDate(text) {
 }
 
 function readBackup(text) {
-  const rows = parseCsv(text.replace(/^﻿/, ""));
+  const rows = parseCsv(text.replace(/^\uFEFF/, ""));
   const header = (rows.shift() || []).map((h) => h.trim());
   const col = BACKUP_COLUMNS.map((name) => header.indexOf(name));
   if (col[0] < 0 || col[1] < 0 || col[3] < 0) {
