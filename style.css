@@ -1145,3 +1145,24 @@ main {
   flex-wrap: wrap;
   gap: 4px;
 }
+
+/* ===== ป้ายอีบิดดิ้ง ===== */
+.ebid-badge {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 1px 10px;
+  border-radius: 999px;
+  background: #fff8e1;
+  color: #7a5900;
+  border: 1px solid #f2d27a;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+@media print {
+  .ebid-badge {
+    background: none;
+    border-color: #999999;
+    color: #000000;
+  }
+}

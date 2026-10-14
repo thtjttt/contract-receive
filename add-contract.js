@@ -107,6 +107,7 @@ function fillForEdit() {
   fields.deliverDate.value = editing.deliverDate;
   receiptDateInput.value = editing.receiptDate || "";
   guaranteeBox.checked = Boolean(editing.guaranteeSent);
+  document.getElementById("ebidding").checked = Boolean(editing.ebidding);
   // ตอนแก้ไข ใช้ช่องวันที่ใบเสร็จ แทนช่องติ๊ก "มาพร้อมสัญญา"
   document.getElementById("receipt-date-field").hidden = false;
   document.getElementById("receipt-with-field").hidden = true;
@@ -196,6 +197,7 @@ form.addEventListener("submit", async (event) => {
     receivedDate: fields.receivedDate.value,
     deliverDate: fields.deliverDate.value,
     guaranteeSent: guaranteeBox.checked,
+    ebidding: document.getElementById("ebidding").checked,
     // ตอนแก้ไข ใช้วันที่ในช่องใบเสร็จ
     // ตอนบันทึกใหม่ ใบเสร็จมาพร้อมสัญญา = วันที่ได้รับใบเสร็จ เท่ากับวันที่ได้รับสัญญา
     receiptDate: editing

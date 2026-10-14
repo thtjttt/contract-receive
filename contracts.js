@@ -11,6 +11,12 @@ const receiptAlert = document.getElementById("receipt-alert");
 const filterButtons = document.querySelectorAll("[data-filter]");
 const companyButtons = document.querySelectorAll("[data-company]");
 const viewButtons = document.querySelectorAll("[data-view]");
+const methodButtons = document.querySelectorAll("[data-method]");
+// ตัวกรองวิธีซื้อ: "all" = ทั้งหมด, "ebid" = อีบิดดิ้ง, "normal" = ไม่ใช่อีบิดดิ้ง
+let currentMethod = "all";
+function matchMethod(c, method) {
+  return method === "all" || (method === "ebid" ? c.ebidding : !c.ebidding);
+}
 const loadingBox = document.getElementById("loading");
 const errorBox = document.getElementById("load-error");
 
@@ -83,7 +89,13 @@ function render() {
   document.getElementById("missing-detail").textContent = missing.length ? "(" + companySummary(missing) + ")" : "";
 
   // ตัวเลขบนปุ่มกรอง: นับตามบริษัทที่เลือกอยู่
-  const inCompany = viewList.filter((c) => currentCompany === "all" || hasCompany(c, currentCompany));
+  // ตัวเลขบนปุ่มวิธีซื้อ: นับตามบริษัทที่เลือกอยู่
+  const byCompany = viewList.filter((c) => currentCompany === "all" || hasCompany(c, currentCompany));
+  methodButtons.forEach((b) => {
+    b.classList.toggle("active", b.dataset.method === currentMethod);
+    b.querySelector(".n").textContent = byCompany.filter((c) => matchMethod(c, b.dataset.method)).length;
+  });
+  const inCompany = byCompany.filter((c) => matchMethod(c, currentMethod));
   document.getElementById("count-all").textContent = inCompany.length;
   document.getElementById("count-noreceipt").textContent = missingReceipts(inCompany).length;
   filterButtons.forEach((b) => b.classList.toggle("active", b.dataset.filter === currentFilter));
@@ -121,7 +133,7 @@ function render() {
         "</div>"
       : '<span class="muted">ดูอย่างเดียว</span>';
     return "<tr" + (classes ? ' class="' + classes + '"' : "") + ">" +
-      '<td data-label="ชื่อลูกค้า">' + escapeHtml(c.customer) + "</td>" +
+      '<td data-label="ชื่อลูกค้า"><span>' + escapeHtml(c.customer) + ebiddingBadge(c) + "</span></td>" +
       '<td data-label="บริษัท">' + itemsBadges(c) + "</td>" +
       '<td data-label="จำนวนชุด" class="sets-col">' + setsText(c.sets) + "</td>" +
       '<td data-label="ผู้บันทึก" class="recorder-col" title="' + escapeHtml(c.recorder || "") + '">' +
@@ -173,6 +185,10 @@ searchBox.addEventListener("input", render);
 filterButtons.forEach((b) => b.addEventListener("click", () => setFilter(b.dataset.filter)));
 companyButtons.forEach((b) => b.addEventListener("click", () => {
   currentCompany = b.dataset.company;
+  render();
+}));
+methodButtons.forEach((b) => b.addEventListener("click", () => {
+  currentMethod = b.dataset.method;
   render();
 }));
 viewButtons.forEach((b) => b.addEventListener("click", () => {

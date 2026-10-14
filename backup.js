@@ -8,7 +8,8 @@ const BACKUP_COLUMNS = [
   "ส่งเอกสารรอถอนเงินค้ำ",
   "บริษัท",
   "ผู้บันทึก",
-  "จำนวนชุด"
+  "จำนวนชุด",
+  "อีบิดดิ้ง"
 ];
 // คอลัมน์จำนวนชุดแยกบริษัท เช่น "ชุด ยงสวัสดิ์"
 const SET_COLUMNS = COMPANIES.map((co) => "ชุด " + co.label);
@@ -45,7 +46,8 @@ async function downloadBackup() {
     c.guaranteeSent ? "ส่งแล้ว" : "ยังไม่ส่ง",
     c.items.map((it) => companyLabel(it.company)).join(" + "),
     c.recorder || "",
-    c.sets || ""
+    c.sets || "",
+    c.ebidding ? "ใช่" : "ไม่ใช่"
   ].concat(COMPANIES.map((co) => setsFor(c, co.key) || "")).map(csvCell).join(",")));
 
   // \uFEFF ช่วยให้ Excel อ่านภาษาไทยถูก
@@ -190,6 +192,7 @@ function readBackup(text) {
       receivedDate,
       deliverDate,
       guaranteeSent: get(4) === "ส่งแล้ว",
+      ebidding: get(8) === "ใช่",
       receiptDate
     };
   });

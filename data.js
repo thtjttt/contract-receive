@@ -32,6 +32,7 @@ const COMPANIES = [
 // customer = ชื่อลูกค้า
 // receivedDate = วันที่ได้รับสัญญา, deliverDate = วันที่ต้องส่งของ
 // guaranteeSent = ส่งเอกสารรอถอนเงินค้ำแล้วหรือยัง (true = ส่งแล้ว)
+// ebidding = สัญญานี้มาจากอีบิดดิ้งหรือไม่
 // receiptDate = วันที่ได้รับใบเสร็จ ("" = ยังไม่ได้รับ)
 
 /* ===== เข้าสู่ระบบ ===== */
@@ -96,6 +97,7 @@ function fromRow(r) {
     deliverDate: r.deliver_date,
     receiptDate: r.receipt_date || "",
     guaranteeSent: Boolean(r.guarantee_sent),
+    ebidding: Boolean(r.ebidding),
     sets: total || null
   };
 }
@@ -118,6 +120,7 @@ function toRow(c) {
   if ("deliverDate" in c) row.deliver_date = c.deliverDate;
   if ("receiptDate" in c) row.receipt_date = c.receiptDate || null;
   if ("guaranteeSent" in c) row.guarantee_sent = Boolean(c.guaranteeSent);
+  if ("ebidding" in c) row.ebidding = Boolean(c.ebidding);
   return row;
 }
 
@@ -274,4 +277,9 @@ function setsText(n) {
 // รวมจำนวนชุด
 function totalSets(list) {
   return list.reduce((sum, c) => sum + (c.sets || 0), 0);
+}
+
+// ป้าย "อีบิดดิ้ง" ต่อท้ายชื่อลูกค้า (ไม่ใช่ = ไม่แสดง)
+function ebiddingBadge(c) {
+  return c.ebidding ? ' <span class="ebid-badge">อีบิดดิ้ง</span>' : "";
 }
