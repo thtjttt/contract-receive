@@ -920,3 +920,7 @@ main {
   cursor: default;
   opacity: 0.6;
 }
+
+a.user-logout {
+  text-decoration: none;
+}

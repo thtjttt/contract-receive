@@ -57,6 +57,7 @@ function showUserBox(user) {
   box.id = "user-box";
   box.className = "user-box";
   box.innerHTML = '<span class="user-email">' + escapeHtml(user.email) + "</span>" +
+    '<a class="user-logout" href="change-password.html">เปลี่ยนรหัสผ่าน</a>' +
     '<button type="button" class="user-logout">ออกจากระบบ</button>';
   box.querySelector("button").addEventListener("click", async () => {
     await db.auth.signOut();
