@@ -5,9 +5,10 @@
   --color-text: #1f2933;
   --color-muted: #5b6672;
   --color-border: #dde1e6;
-  --color-primary: #0277bd;
-  --color-primary-hover: #01609a;
-  --color-primary-soft: #e3f2fb;
+  --color-primary: #b5451b;
+  --color-primary-hover: #933815;
+  --color-primary-soft: #fbe9e2;
+  --color-primary-text: #8a3311;
   --radius: 10px;
   --shadow: 0 1px 3px rgba(16, 24, 40, 0.06);
 }
@@ -373,11 +374,11 @@ main {
 }
 
 .row-new td {
-  background: var(--color-primary-soft);
+  background: #e8f5e9;
 }
 
 .row-new td:first-child {
-  box-shadow: inset 4px 0 0 var(--color-primary);
+  box-shadow: inset 4px 0 0 #2e7d32;
 }
 
 /* ===== ฟอร์มบันทึกรับสัญญา ===== */
@@ -745,7 +746,7 @@ main {
 }
 
 .company-amata {
-  background: var(--color-primary-soft);
+  background: #e3f2fb;
   color: #01579b;
 }
 
@@ -794,7 +795,7 @@ main {
 .choice:has(input:checked) {
   border-color: var(--color-primary);
   background: var(--color-primary-soft);
-  color: #01579b;
+  color: var(--color-primary-text);
 }
 
 .choice input {
