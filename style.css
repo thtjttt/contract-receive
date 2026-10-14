@@ -1034,3 +1034,19 @@ a.user-logout {
     color: #000000 !important;
   }
 }
+
+/* ป้ายสีบริษัทเพิ่มเติม */
+.company-thaiaksorn {
+  background: #efebe9;
+  color: #5d4037;
+}
+
+.company-chokcharoen {
+  background: #fce4ec;
+  color: #ad1457;
+}
+
+.company-phoenix {
+  background: #f1f8e9;
+  color: #33691e;
+}

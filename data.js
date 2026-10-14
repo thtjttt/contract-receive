@@ -19,12 +19,15 @@ const SOON_DAYS = 7;
 // บริษัทที่ได้รับสัญญา (ใบเสร็จมาในนามบริษัทเดียวกับสัญญา)
 const COMPANIES = [
   { key: "yongsawat", label: "ยงสวัสดิ์" },
-  { key: "amata", label: "อมตะ" }
+  { key: "amata", label: "อมตะ" },
+  { key: "thaiaksorn", label: "ไทยอักษร" },
+  { key: "chokcharoen", label: "โชคเจริญ" },
+  { key: "phoenix", label: "ฟีนิกซ์" }
 ];
 
 // ข้อมูลสัญญา 1 รายการ มีช่องดังนี้
 // id = เลขรายการ, userId = เจ้าของ, recorder = ผู้บันทึก (อีเมล)
-// company = บริษัท ("yongsawat" / "amata", "" = ยังไม่ระบุ)
+// company = บริษัท (รหัสใน COMPANIES ด้านบน, "" = ยังไม่ระบุ)
 // customer = ชื่อลูกค้า
 // receivedDate = วันที่ได้รับสัญญา, deliverDate = วันที่ต้องส่งของ
 // guaranteeSent = ส่งเอกสารรอถอนเงินค้ำแล้วหรือยัง (true = ส่งแล้ว)

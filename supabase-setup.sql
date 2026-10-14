@@ -6,7 +6,7 @@ create table if not exists public.contracts (
   id             bigint generated always as identity primary key,
   user_id        uuid not null default auth.uid() references auth.users (id) on delete cascade,
   recorder       text not null default (auth.jwt() ->> 'email'),   -- ผู้บันทึก (อีเมล)
-  company        text not null default '' check (company in ('', 'yongsawat', 'amata')),
+  company        text not null default '' check (company in ('', 'yongsawat', 'amata', 'thaiaksorn', 'chokcharoen', 'phoenix')),
   customer       text not null check (length(trim(customer)) > 0),
   received_date  date not null,                                     -- วันที่ได้รับสัญญา
   deliver_date   date not null,                                     -- วันที่ต้องส่งของ
