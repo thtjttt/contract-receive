@@ -10,8 +10,11 @@ const receiptAlert = document.getElementById("receipt-alert");
 const filterButtons = document.querySelectorAll("[data-filter]");
 
 const params = new URLSearchParams(location.search);
-// แถวที่เพิ่งบันทึก (ส่งมาจากหน้าบันทึกรับสัญญา)
-const newId = Number(params.get("new"));
+// แถวที่เพิ่งบันทึกหรือเพิ่งแก้ (ส่งมาจากหน้าบันทึกรับสัญญา)
+const newId = Number(params.get("new") || params.get("edited"));
+const successBox = document.getElementById("success");
+const deleteConfirm = document.getElementById("delete-confirm");
+let pendingDeleteId = null;
 // ตัวกรอง: "all" = ทั้งหมด, "noreceipt" = ยังไม่ได้รับใบเสร็จ
 let currentFilter = params.get("filter") === "noreceipt" ? "noreceipt" : "all";
 
@@ -63,6 +66,10 @@ function render() {
       '<td data-label="ส่งเก็บเอกสารรอทำเงินค้ำ"><label class="check' + (c.guaranteeSent ? " check-done" : "") + '">' +
       '<input type="checkbox" data-guarantee="' + c.id + '"' + (c.guaranteeSent ? " checked" : "") + ">" +
       (c.guaranteeSent ? "ส่งแล้ว" : "ยังไม่ส่ง") + "</label></td>" +
+      '<td data-label="จัดการ"><div class="row-actions">' +
+      '<a class="small-button" href="add-contract.html?edit=' + c.id + '">แก้ไข</a>' +
+      '<button type="button" class="small-button danger" data-delete="' + c.id + '">ลบ</button>' +
+      "</div></td>" +
       "</tr>";
   }).join("");
 
@@ -121,16 +128,68 @@ tableBody.addEventListener("change", (event) => {
   render();
 });
 
+/* ----- ลบรายการ: ถามยืนยันก่อน และเอากลับคืนได้ ----- */
+
+tableBody.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-delete]");
+  if (!button) return;
+  const item = contracts.find((c) => c.id === Number(button.dataset.delete));
+  if (!item) return;
+  pendingDeleteId = item.id;
+  document.getElementById("delete-summary").innerHTML =
+    "ลบสัญญาของ <strong>" + escapeHtml(item.customer) + "</strong>" +
+    " (ได้รับ " + formatThaiDate(item.receivedDate) + ") ใช่ไหม?";
+  deleteConfirm.hidden = false;
+  deleteConfirm.scrollIntoView({ block: "center" });
+});
+
+document.getElementById("delete-no").addEventListener("click", () => {
+  pendingDeleteId = null;
+  deleteConfirm.hidden = true;
+});
+
+document.getElementById("delete-yes").addEventListener("click", () => {
+  const index = contracts.findIndex((c) => c.id === pendingDeleteId);
+  deleteConfirm.hidden = true;
+  pendingDeleteId = null;
+  if (index < 0) return;
+  const [removed] = contracts.splice(index, 1);
+  if (!saveContracts(contracts)) {
+    contracts.splice(index, 0, removed);
+    alert("ลบไม่สำเร็จ เบราว์เซอร์อาจปิดการเก็บข้อมูลไว้");
+    return;
+  }
+  render();
+
+  // แถบข้อความ พร้อมปุ่มเอากลับคืน
+  successBox.hidden = false;
+  successBox.innerHTML = 'ลบสัญญาของ "' + escapeHtml(removed.customer) + '" แล้ว' +
+    '<button type="button" class="link-button" id="undo-delete">เอากลับคืน</button>';
+  document.getElementById("undo-delete").addEventListener("click", () => {
+    contracts.splice(Math.min(index, contracts.length), 0, removed);
+    if (!saveContracts(contracts)) {
+      contracts.splice(contracts.indexOf(removed), 1);
+      alert("เอากลับคืนไม่สำเร็จ เบราว์เซอร์อาจปิดการเก็บข้อมูลไว้");
+      return;
+    }
+    successBox.textContent = 'เอาสัญญาของ "' + removed.customer + '" กลับคืนแล้ว';
+    render();
+  });
+  successBox.scrollIntoView({ block: "center" });
+});
+
 render();
 
-// แสดงข้อความสำเร็จ และเลื่อนไปที่แถวใหม่
+// แสดงข้อความสำเร็จ และเลื่อนไปที่แถวใหม่ / แถวที่แก้
 if (newId) {
   const saved = contracts.find((c) => c.id === newId);
   if (saved) {
-    const msg = document.getElementById("success");
+    const msg = successBox;
     msg.hidden = false;
-    msg.textContent = 'บันทึกรับสัญญาของ "' + saved.customer + '" เรียบร้อยแล้ว' +
-      (saved.receiptDate ? "" : " (ยังไม่ได้รับใบเสร็จ ระบบจะเตือนไว้ให้)");
+    msg.textContent = params.get("edited")
+      ? 'แก้ไขสัญญาของ "' + saved.customer + '" เรียบร้อยแล้ว'
+      : 'บันทึกรับสัญญาของ "' + saved.customer + '" เรียบร้อยแล้ว' +
+        (saved.receiptDate ? "" : " (ยังไม่ได้รับใบเสร็จ ระบบจะเตือนไว้ให้)");
     const row = document.querySelector(".row-new");
     if (row) row.scrollIntoView({ block: "center" });
   }

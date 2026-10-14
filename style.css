@@ -641,3 +641,90 @@ main {
 .restore-error {
   color: #c62828;
 }
+
+/* ===== ปุ่มแก้ไข / ลบ ในตาราง ===== */
+.row-actions {
+  display: flex;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.small-button {
+  font: inherit;
+  font-size: 0.88rem;
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.small-button:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.small-button.danger:hover {
+  border-color: #c62828;
+  color: #c62828;
+}
+
+.button-danger {
+  background: #c62828;
+}
+
+.button-danger:hover {
+  background: #a51f1f;
+}
+
+.delete-confirm p {
+  margin: 0 0 12px;
+}
+
+.success .link-button {
+  margin-left: 8px;
+}
+
+.link-button {
+  font: inherit;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--color-primary);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.success .link-button {
+  color: #1b5e20;
+  font-weight: 600;
+}
+
+/* ===== ให้ตารางพอดีจอ: หัวคอลัมน์ตัดบรรทัดได้ ชื่อลูกค้าไม่บีบเกินไป ===== */
+.data-table th,
+.data-table td {
+  padding: 12px 10px;
+}
+
+.data-table th {
+  white-space: normal;
+}
+
+.data-table td[data-label="ชื่อลูกค้า"] {
+  min-width: 150px;
+}
+
+.data-table td[data-label="จัดการ"] {
+  width: 1%;
+}
+
+@media (max-width: 600px) {
+  .data-table td,
+  .data-table td[data-label="ชื่อลูกค้า"] {
+    min-width: 0;
+    width: 100%;
+    padding: 8px 14px;
+  }
+}

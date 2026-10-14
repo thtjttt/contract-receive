@@ -30,6 +30,14 @@
 
     <div id="success" class="success" hidden></div>
 
+    <div id="delete-confirm" class="warning delete-confirm" hidden>
+      <p id="delete-summary"></p>
+      <div class="form-actions">
+        <button type="button" id="delete-yes" class="button button-danger">ยืนยัน ลบ</button>
+        <button type="button" id="delete-no" class="button button-light">ยกเลิก</button>
+      </div>
+    </div>
+
     <div id="receipt-alert" class="alert" hidden>
       <span>⚠ มี <strong id="missing-count">0</strong> รายการ ยังไม่ได้รับใบเสร็จจากลูกค้า</span>
       <button type="button" id="show-missing" class="button button-alert">ดูเฉพาะรายการนี้</button>
@@ -57,6 +65,7 @@
             <th>ใบเสร็จ</th>
             <th>วันที่ต้องส่งของ</th>
             <th>ส่งเก็บเอกสารรอทำเงินค้ำ</th>
+            <th>จัดการ</th>
           </tr>
         </thead>
         <tbody id="contract-rows"></tbody>

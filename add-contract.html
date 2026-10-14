@@ -25,8 +25,8 @@
   </header>
 
   <main>
-    <h1 class="page-title">บันทึกรับสัญญา</h1>
-    <p class="page-subtitle">กรอกข้อมูลเมื่อได้รับสัญญาซื้อขายจากลูกค้า</p>
+    <h1 class="page-title" id="page-title">บันทึกรับสัญญา</h1>
+    <p class="page-subtitle" id="page-subtitle">กรอกข้อมูลเมื่อได้รับสัญญาซื้อขายจากลูกค้า</p>
 
     <form id="contract-form" class="panel form" novalidate>
       <div class="field">
@@ -51,7 +51,15 @@
         </div>
       </div>
 
-      <div class="field">
+      <div class="field" id="receipt-date-field" hidden>
+        <label for="receiptDate">วันที่ได้รับใบเสร็จ</label>
+        <input id="receiptDate" type="date">
+        <p class="hint" id="receiptDate-thai"></p>
+        <p class="hint">ยังไม่ได้รับใบเสร็จ ให้เว้นว่างไว้ <button type="button" id="receipt-clear" class="link-button">ล้างวันที่</button></p>
+        <p class="error" id="receiptDate-error"></p>
+      </div>
+
+      <div class="field" id="receipt-with-field">
         <label class="check">
           <input id="receiptWith" type="checkbox">
           ได้รับใบเสร็จมาพร้อมสัญญาแล้ว
