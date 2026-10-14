@@ -5,7 +5,7 @@ const BACKUP_COLUMNS = [
   "วันที่ได้รับสัญญา",
   "วันที่ได้รับใบเสร็จ",
   "วันที่ต้องส่งของ",
-  "ส่งเก็บเอกสารรอทำเงินค้ำ",
+  "ส่งเอกสารรอถอนเงินค้ำ",
   "บริษัท"
 ];
 
@@ -147,7 +147,10 @@ function readDate(text) {
 function readBackup(text) {
   const rows = parseCsv(text.replace(/^\uFEFF/, ""));
   const header = (rows.shift() || []).map((h) => h.trim());
-  const col = BACKUP_COLUMNS.map((name) => header.indexOf(name));
+  // ชื่อคอลัมน์เดิมในไฟล์สำรองรุ่นเก่า (ยังนำกลับมาได้)
+  const oldNames = { "ส่งเอกสารรอถอนเงินค้ำ": "ส่งเก็บเอกสารรอทำเงินค้ำ" };
+  const col = BACKUP_COLUMNS.map((name) =>
+    header.indexOf(name) >= 0 ? header.indexOf(name) : header.indexOf(oldNames[name]));
   if (col[0] < 0 || col[1] < 0 || col[3] < 0) {
     throw new Error("ไฟล์นี้ไม่ใช่ไฟล์สำรองของระบบนี้ กรุณาเลือกไฟล์ที่ได้จากปุ่ม \"ดาวน์โหลดสำรองข้อมูล\"");
   }

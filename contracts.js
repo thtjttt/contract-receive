@@ -81,7 +81,7 @@ function render() {
       '<td data-label="วันที่ได้รับสัญญา">' + formatThaiDate(c.receivedDate) + "</td>" +
       '<td data-label="ใบเสร็จ">' + receiptCell(c) + "</td>" +
       '<td data-label="วันที่ต้องส่งของ"><div>' + formatThaiDate(c.deliverDate) + "</div>" + note + "</td>" +
-      '<td data-label="ส่งเก็บเอกสารรอทำเงินค้ำ"><label class="check' + (c.guaranteeSent ? " check-done" : "") + '">' +
+      '<td data-label="ส่งเอกสารรอถอนเงินค้ำ"><label class="check' + (c.guaranteeSent ? " check-done" : "") + '">' +
       '<input type="checkbox" data-guarantee="' + c.id + '"' + (c.guaranteeSent ? " checked" : "") + ">" +
       (c.guaranteeSent ? "ส่งแล้ว" : "ยังไม่ส่ง") + "</label></td>" +
       '<td data-label="จัดการ"><div class="row-actions">' +
