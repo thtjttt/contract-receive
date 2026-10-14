@@ -35,7 +35,7 @@ function render() {
 
   const isToday = day === todayISO();
   reportSubtitle.textContent = "วันที่ได้รับสัญญา: " + formatThaiDate(day) + (isToday ? " (วันนี้)" : "") +
-    " · " + (mineOnly ? "เฉพาะของฉัน (" + recorderName(currentUser.email) + ")" : "ของทุกคน");
+    " · " + (mineOnly ? "เฉพาะของฉัน (" + userLabel(currentUser) + ")" : "ของทุกคน");
 
   reportRows.innerHTML = rows.map((c, i) =>
     "<tr>" +
@@ -43,7 +43,7 @@ function render() {
     "<td>" + escapeHtml(c.customer) + ebiddingBadge(c) + "</td>" +
     "<td>" + itemsBadges(c) + "</td>" +
     '<td class="sets-col">' + setsText(c.sets) + "</td>" +
-    "<td>" + escapeHtml(recorderName(c.recorder)) + "</td>" +
+    "<td>" + escapeHtml(recorderLabel(c)) + "</td>" +
     "<td>" + formatThaiDate(c.deliverDate) + "</td>" +
     "<td>" + (c.receiptDate
       ? '<span class="check-done">ได้รับ ' + formatThaiDate(c.receiptDate) + "</span>"

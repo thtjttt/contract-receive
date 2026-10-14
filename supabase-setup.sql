@@ -6,6 +6,7 @@ create table if not exists public.contracts (
   id             bigint generated always as identity primary key,
   user_id        uuid not null default auth.uid() references auth.users (id) on delete cascade,
   recorder       text not null default (auth.jwt() ->> 'email'),   -- ผู้บันทึก (อีเมล)
+  recorder_name  text not null default '',                          -- ชื่อเล่นผู้บันทึก (จาก display_name ของบัญชี)
   company        text not null default '' check (company in ('', 'yongsawat', 'amata', 'thaiaksorn', 'chokcharoen', 'phoenix')),
   customer       text not null check (length(trim(customer)) > 0),
   received_date  date not null,                                     -- วันที่ได้รับสัญญา
@@ -29,10 +30,12 @@ begin
   if tg_op = 'INSERT' then
     new.user_id := auth.uid();
     new.recorder := auth.jwt() ->> 'email';
+    new.recorder_name := coalesce((select raw_user_meta_data ->> 'display_name' from auth.users where id = auth.uid()), '');
     new.created_at := now();
   else
     new.user_id := old.user_id;
     new.recorder := old.recorder;
+    new.recorder_name := old.recorder_name;
     new.created_at := old.created_at;
   end if;
   return new;

@@ -45,7 +45,7 @@ async function downloadBackup() {
     c.deliverDate,
     c.guaranteeSent ? "ส่งแล้ว" : "ยังไม่ส่ง",
     c.items.map((it) => companyLabel(it.company)).join(" + "),
-    c.recorder || "",
+    recorderLabel(c),
     c.sets || "",
     c.ebidding ? "ใช่" : "ไม่ใช่"
   ].concat(COMPANIES.map((co) => setsFor(c, co.key) || "")).map(csvCell).join(",")));

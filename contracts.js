@@ -137,7 +137,7 @@ function render() {
       '<td data-label="บริษัท">' + itemsBadges(c) + "</td>" +
       '<td data-label="จำนวนชุด" class="sets-col">' + setsText(c.sets) + "</td>" +
       '<td data-label="ผู้บันทึก" class="recorder-col" title="' + escapeHtml(c.recorder || "") + '">' +
-        "<span>" + escapeHtml(recorderName(c.recorder)) + (mine ? ' <span class="muted">(คุณ)</span>' : "") + "</span></td>" +
+        "<span>" + escapeHtml(recorderLabel(c)) + (mine ? ' <span class="muted">(คุณ)</span>' : "") + "</span></td>" +
       '<td data-label="วันที่ได้รับสัญญา">' + formatThaiDate(c.receivedDate) + "</td>" +
       '<td data-label="ใบเสร็จ">' + receiptCell(c, mine) + "</td>" +
       '<td data-label="วันที่ต้องส่งของ"><div>' + formatThaiDate(c.deliverDate) + "</div>" + note + "</td>" +

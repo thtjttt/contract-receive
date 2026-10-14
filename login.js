@@ -10,13 +10,13 @@ function nextPage() {
   return /^[\w-]+\.html(\?[\w=&%-]*)?$/.test(next) ? next : "index.html";
 }
 
-// ชื่อสั้น → อีเมลเต็ม เช่น "somchai" → "yongsawat.printing+somchai@gmail.com"
+// ชื่อสั้น → อีเมลที่เป็นไปได้ เช่น "may" → "yongsawat.may@gmail.com" หรือ "yongsawat.printing+may@gmail.com"
 // ถ้าพิมพ์อีเมลเต็ม (มี @) ใช้ตามที่พิมพ์
-const SHORT_NAME_EMAIL = { before: "yongsawat.printing+", after: "@gmail.com" };
-function toLoginEmail(text) {
+function loginEmails(text) {
   const value = text.trim().toLowerCase();
-  if (!value || value.includes("@")) return value;
-  return SHORT_NAME_EMAIL.before + value + SHORT_NAME_EMAIL.after;
+  if (!value || value.includes("@")) return [value];
+  if (value.startsWith("yongsawat.")) return [value + "@gmail.com"];
+  return ["yongsawat." + value + "@gmail.com", "yongsawat.printing+" + value + "@gmail.com"];
 }
 
 // เข้าสู่ระบบอยู่แล้ว ไปหน้าถัดไปเลย
@@ -26,7 +26,8 @@ db.auth.getSession().then(({ data }) => {
 
 loginForm.addEventListener("submit", async (event) => {
   event.preventDefault();
-  const email = toLoginEmail(document.getElementById("email").value);
+  const emails = loginEmails(document.getElementById("email").value);
+  const email = emails[0];
   const password = document.getElementById("password").value;
   loginError.textContent = "";
 
@@ -37,7 +38,12 @@ loginForm.addEventListener("submit", async (event) => {
 
   loginButton.disabled = true;
   loginButton.textContent = "กำลังเข้าสู่ระบบ…";
-  const { error } = await db.auth.signInWithPassword({ email, password });
+  // ลองอีเมลที่เป็นไปได้ทีละแบบ จนกว่าจะเข้าได้
+  let error = null;
+  for (const candidate of emails) {
+    ({ error } = await db.auth.signInWithPassword({ email: candidate, password }));
+    if (!error || !/invalid/i.test(error.message)) break;
+  }
   loginButton.disabled = false;
   loginButton.textContent = "เข้าสู่ระบบ";
 

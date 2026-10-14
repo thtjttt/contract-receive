@@ -26,7 +26,7 @@ const COMPANIES = [
 ];
 
 // ข้อมูลสัญญา 1 รายการ มีช่องดังนี้
-// id = เลขรายการ, userId = เจ้าของ, recorder = ผู้บันทึก (อีเมล)
+// id = เลขรายการ, userId = เจ้าของ, recorder = ผู้บันทึก (อีเมล), recorderNick = ชื่อเล่นผู้บันทึก
 // items = บริษัทที่ได้รับสัญญา พร้อมจำนวนชุด [{ company, sets }] (ว่าง = ยังไม่ระบุ)
 // sets = จำนวนชุดรวมทุกบริษัท (null = ยังไม่ได้กรอก)
 // customer = ชื่อลูกค้า
@@ -61,7 +61,7 @@ function showUserBox(user) {
   const box = document.createElement("div");
   box.id = "user-box";
   box.className = "user-box";
-  box.innerHTML = '<span class="user-email" title="' + escapeHtml(user.email) + '">' + escapeHtml(recorderName(user.email)) + "</span>" +
+  box.innerHTML = '<span class="user-email" title="' + escapeHtml(user.email) + '">' + escapeHtml(userLabel(user)) + "</span>" +
     '<a class="user-logout" href="change-password.html">เปลี่ยนรหัสผ่าน</a>' +
     '<button type="button" class="user-logout">ออกจากระบบ</button>';
   box.querySelector("button").addEventListener("click", async () => {
@@ -95,6 +95,7 @@ function fromRow(r) {
     id: r.id,
     userId: r.user_id,
     recorder: r.recorder,
+    recorderNick: r.recorder_name || "",
     items,
     customer: r.customer,
     receivedDate: r.received_date,
@@ -286,4 +287,15 @@ function totalSets(list) {
 // ป้าย "อีบิดดิ้ง" ต่อท้ายชื่อลูกค้า (ไม่ใช่ = ไม่แสดง)
 function ebiddingBadge(c) {
   return c.ebidding ? ' <span class="ebid-badge">อีบิดดิ้ง</span>' : "";
+}
+
+// ชื่อผู้บันทึกที่แสดง: ชื่อเล่น (ถ้ามี) ไม่มี = ชื่อสั้นจากอีเมล
+function recorderLabel(c) {
+  return c.recorderNick || recorderName(c.recorder);
+}
+
+// ชื่อที่แสดงของคนที่เข้าสู่ระบบอยู่
+function userLabel(user) {
+  const meta = user.user_metadata || {};
+  return meta.display_name || recorderName(user.email);
 }

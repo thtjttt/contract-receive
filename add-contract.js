@@ -249,7 +249,7 @@ async function saveForm(data) {
 function showDuplicate(keys, existing) {
   const same = [...new Set(existing.flatMap((c) => c.items.map((i) => i.company)).filter((k) => keys.includes(k)))];
   const dates = existing.map((c) => formatThaiDate(c.receivedDate) +
-    (c.userId === currentUser.id ? "" : " (บันทึกโดย " + escapeHtml(recorderName(c.recorder)) + ")")).join(", ");
+    (c.userId === currentUser.id ? "" : " (บันทึกโดย " + escapeHtml(recorderLabel(c)) + ")")).join(", ");
   duplicateBox.innerHTML =
     "<strong>ลูกค้ารายนี้มีสัญญากับบริษัท" + same.map(companyLabel).join(", ") + " บันทึกไว้แล้ว</strong>" +
     "<br>ได้รับเมื่อ: " + dates +
@@ -276,7 +276,7 @@ async function start() {
       return;
     }
     if (editing.userId !== user.id) {
-      replaceForm("รายการนี้บันทึกโดย " + escapeHtml(recorderName(editing.recorder)) + " แก้ไขได้เฉพาะเจ้าของรายการ");
+      replaceForm("รายการนี้บันทึกโดย " + escapeHtml(recorderLabel(editing)) + " แก้ไขได้เฉพาะเจ้าของรายการ");
       return;
     }
     fillForEdit();
