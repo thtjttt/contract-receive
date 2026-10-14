@@ -5,10 +5,10 @@
   --color-text: #1f2933;
   --color-muted: #5b6672;
   --color-border: #dde1e6;
-  --color-primary: #b5451b;
-  --color-primary-hover: #933815;
-  --color-primary-soft: #fbe9e2;
-  --color-primary-text: #8a3311;
+  --color-primary: #6b3fa0;
+  --color-primary-hover: #55308a;
+  --color-primary-soft: #f1eaf8;
+  --color-primary-text: #4a2a75;
   --radius: 10px;
   --shadow: 0 1px 3px rgba(16, 24, 40, 0.06);
 }
@@ -741,8 +741,8 @@ main {
 }
 
 .company-yongsawat {
-  background: #f3e5f5;
-  color: #6a1b9a;
+  background: #e0f2f1;
+  color: #00695c;
 }
 
 .company-amata {
