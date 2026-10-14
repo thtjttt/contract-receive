@@ -924,3 +924,113 @@ main {
 a.user-logout {
   text-decoration: none;
 }
+
+/* ===== รายงานประจำวัน ===== */
+.report-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+  margin-bottom: 20px;
+}
+
+.date-picker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.date-picker input {
+  font: inherit;
+  padding: 9px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.report-controls .view-switch {
+  margin-bottom: 0;
+}
+
+.report-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.report-table th,
+.report-table td {
+  padding: 10px 8px;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: top;
+}
+
+.report-table th {
+  background: #f0f3f6;
+  font-weight: 600;
+}
+
+.report-table .num {
+  text-align: center;
+  width: 1%;
+  white-space: nowrap;
+}
+
+.report-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.report-summary {
+  margin: 14px 0 0;
+  font-weight: 600;
+}
+
+.print-only {
+  display: none;
+}
+
+/* ตอนพิมพ์: ซ่อนเมนูและปุ่ม เหลือหัวรายงาน วันที่ และตาราง พอดีกระดาษ A4 */
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm;
+  }
+  body {
+    background: #ffffff;
+  }
+  .site-header,
+  .site-footer,
+  .no-print,
+  #user-box {
+    display: none !important;
+  }
+  main {
+    max-width: none;
+    padding: 0;
+  }
+  .print-only {
+    display: block;
+  }
+  .report-wrap {
+    border: 1px solid #999999;
+    overflow: visible;
+  }
+  .report-table th,
+  .report-table td {
+    border-bottom: 1px solid #999999;
+  }
+  .report-table tr {
+    break-inside: avoid;
+  }
+  .report-printed {
+    margin-top: 8px;
+    color: #555555;
+  }
+  .company {
+    padding: 0;
+    background: none !important;
+    color: #000000 !important;
+  }
+}

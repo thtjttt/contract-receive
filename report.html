@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>รายงานประจำวัน | ระบบรับเข้าสัญญาซื้อขาย</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="inner">
+      <a class="brand" href="index.html">
+        ระบบรับเข้าสัญญาซื้อขาย
+        <small>บริษัท ยงสวัสดิ์ / บริษัท อมตะ</small>
+      </a>
+      <nav class="nav">
+        <a href="index.html">หน้าแรก</a>
+        <a href="contracts.html">รายการสัญญาที่ได้รับ</a>
+        <a href="add-contract.html">บันทึกรับสัญญา</a>
+        <a href="report.html" class="active">รายงานประจำวัน</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="report-head">
+      <h1 class="page-title">รายงานสัญญาที่ได้รับประจำวัน</h1>
+      <p class="page-subtitle" id="report-subtitle">กำลังโหลดข้อมูล…</p>
+    </div>
+
+    <div class="report-controls no-print">
+      <div class="date-picker">
+        <button type="button" id="prev-day" class="button button-light">◀ วันก่อน</button>
+        <input type="date" id="report-date" aria-label="วันที่ของรายงาน">
+        <button type="button" id="next-day" class="button button-light">วันถัดไป ▶</button>
+        <button type="button" id="to-today" class="link-button">วันนี้</button>
+      </div>
+      <div class="view-switch">
+        <button type="button" data-view="everyone">ของทุกคน</button>
+        <button type="button" data-view="mine">ของฉัน</button>
+      </div>
+      <button type="button" id="print-report" class="button">พิมพ์ / บันทึกเป็น PDF</button>
+    </div>
+
+    <p id="load-error" class="alert" hidden></p>
+
+    <div id="report-wrap" class="table-wrap report-wrap" hidden>
+      <table class="report-table">
+        <thead>
+          <tr>
+            <th class="num">ลำดับ</th>
+            <th>ชื่อลูกค้า</th>
+            <th>บริษัท</th>
+            <th>ผู้บันทึก</th>
+            <th>วันที่ต้องส่งของ</th>
+            <th>ใบเสร็จ</th>
+            <th>ส่งเอกสารรอถอนเงินค้ำ</th>
+          </tr>
+        </thead>
+        <tbody id="report-rows"></tbody>
+      </table>
+    </div>
+    <p id="report-empty" class="empty panel" hidden></p>
+    <p id="report-summary" class="report-summary"></p>
+    <p id="report-printed" class="report-printed print-only"></p>
+  </main>
+
+  <footer class="site-footer">
+    บริษัท ยงสวัสดิ์ / บริษัท อมตะ &middot; ระบบรับเข้าสัญญาซื้อขาย
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+  <script src="data.js"></script>
+  <script src="report.js"></script>
+</body>
+</html>
