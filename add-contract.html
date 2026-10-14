@@ -14,7 +14,7 @@
     <div class="inner">
       <a class="brand" href="index.html">
         ระบบรับเข้าสัญญาซื้อขาย
-        <small>สำนักพิมพ์อมตะ</small>
+        <small>บริษัท ยงสวัสดิ์ / บริษัท อมตะ</small>
       </a>
       <nav class="nav">
         <a href="index.html">หน้าแรก</a>
@@ -29,6 +29,13 @@
     <p class="page-subtitle" id="page-subtitle">กรอกข้อมูลเมื่อได้รับสัญญาซื้อขายจากลูกค้า</p>
 
     <form id="contract-form" class="panel form" novalidate>
+      <fieldset class="field choice-group" id="company-group">
+        <legend>บริษัทที่ได้รับสัญญา <span class="req">*</span></legend>
+        <label class="choice"><input type="radio" name="company" value="yongsawat"> ยงสวัสดิ์</label>
+        <label class="choice"><input type="radio" name="company" value="amata"> อมตะ</label>
+        <p class="error" id="company-error"></p>
+      </fieldset>
+
       <div class="field">
         <label for="customer">ชื่อลูกค้า <span class="req">*</span></label>
         <input id="customer" type="text" placeholder="เช่น โรงเรียนบ้านหนองสมมติ" autocomplete="off">
@@ -85,7 +92,7 @@
   </main>
 
   <footer class="site-footer">
-    สำนักพิมพ์อมตะ &middot; ระบบรับเข้าสัญญาซื้อขาย
+    บริษัท ยงสวัสดิ์ / บริษัท อมตะ &middot; ระบบรับเข้าสัญญาซื้อขาย
   </footer>
 
   <script src="data.js"></script>

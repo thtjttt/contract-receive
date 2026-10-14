@@ -8,6 +8,7 @@ const emptyBox = document.getElementById("empty");
 const tableWrap = document.getElementById("table-wrap");
 const receiptAlert = document.getElementById("receipt-alert");
 const filterButtons = document.querySelectorAll("[data-filter]");
+const companyButtons = document.querySelectorAll("[data-company]");
 
 const params = new URLSearchParams(location.search);
 // แถวที่เพิ่งบันทึกหรือเพิ่งแก้ (ส่งมาจากหน้าบันทึกรับสัญญา)
@@ -17,6 +18,8 @@ const deleteConfirm = document.getElementById("delete-confirm");
 let pendingDeleteId = null;
 // ตัวกรอง: "all" = ทั้งหมด, "noreceipt" = ยังไม่ได้รับใบเสร็จ
 let currentFilter = params.get("filter") === "noreceipt" ? "noreceipt" : "all";
+// ตัวกรองบริษัท: "all" = ทุกบริษัท หรือรหัสบริษัท
+let currentCompany = COMPANIES.some((co) => co.key === params.get("company")) ? params.get("company") : "all";
 
 // ช่องใบเสร็จ: ได้รับแล้ว = วันที่สีเขียว, ยังไม่ได้รับ = บอกว่ารอมากี่วัน
 function receiptCell(c) {
@@ -37,15 +40,29 @@ function render() {
   const keyword = typed.toLowerCase();
   const missing = missingReceipts(contracts);
 
-  // แถบเตือนใบเสร็จ และตัวเลขบนปุ่มกรอง
+  // แถบเตือนใบเสร็จ (บอกแยกบริษัท)
   receiptAlert.hidden = missing.length === 0;
   document.getElementById("missing-count").textContent = missing.length;
-  document.getElementById("count-all").textContent = contracts.length;
-  document.getElementById("count-noreceipt").textContent = missing.length;
+  document.getElementById("missing-detail").textContent = missing.length ? "(" + companySummary(missing) + ")" : "";
+
+  // ตัวเลขบนปุ่มกรอง: นับตามบริษัทที่เลือกอยู่
+  const inCompany = contracts.filter((c) => currentCompany === "all" || c.company === currentCompany);
+  document.getElementById("count-all").textContent = inCompany.length;
+  document.getElementById("count-noreceipt").textContent = missingReceipts(inCompany).length;
   filterButtons.forEach((b) => b.classList.toggle("active", b.dataset.filter === currentFilter));
 
+  // ตัวเลขบนปุ่มบริษัท: นับตามสถานะใบเสร็จที่เลือกอยู่
+  const inStatus = currentFilter === "all" ? contracts : missing;
+  companyButtons.forEach((b) => {
+    const key = b.dataset.company;
+    b.classList.toggle("active", key === currentCompany);
+    b.querySelector(".n").textContent = key === "all"
+      ? inStatus.length
+      : inStatus.filter((c) => c.company === key).length;
+  });
+
   // เรียงรับล่าสุดอยู่บนสุด
-  const rows = contracts
+  const rows = inCompany
     .filter((c) => currentFilter === "all" || !c.receiptDate)
     .filter((c) => !keyword || c.customer.toLowerCase().includes(keyword))
     .sort((a, b) => b.receivedDate.localeCompare(a.receivedDate) || b.id - a.id);
@@ -60,6 +77,7 @@ function render() {
     }
     return "<tr" + (classes ? ' class="' + classes + '"' : "") + ">" +
       '<td data-label="ชื่อลูกค้า">' + escapeHtml(c.customer) + "</td>" +
+      '<td data-label="บริษัท">' + companyBadge(c.company) + "</td>" +
       '<td data-label="วันที่ได้รับสัญญา">' + formatThaiDate(c.receivedDate) + "</td>" +
       '<td data-label="ใบเสร็จ">' + receiptCell(c) + "</td>" +
       '<td data-label="วันที่ต้องส่งของ"><div>' + formatThaiDate(c.deliverDate) + "</div>" + note + "</td>" +
@@ -74,16 +92,19 @@ function render() {
   }).join("");
 
   // ข้อความสรุปผลค้นหา
-  const total = currentFilter === "all" ? contracts.length : missing.length;
+  const total = currentFilter === "all" ? inCompany.length : missingReceipts(inCompany).length;
+  const scope = (currentCompany === "all" ? "" : " ของบริษัท" + companyLabel(currentCompany)) +
+    (currentFilter === "noreceipt" ? " ในรายการที่ยังไม่ได้รับใบเสร็จ" : "");
   if (rows.length === 0) {
     tableWrap.hidden = true;
     emptyBox.hidden = false;
     if (keyword) {
-      emptyBox.innerHTML = 'ยังไม่พบการรับสัญญาของ "<strong>' + escapeHtml(typed) + '</strong>"' +
-        (currentFilter === "noreceipt" ? " ในรายการที่ยังไม่ได้รับใบเสร็จ" : "") +
+      emptyBox.innerHTML = 'ยังไม่พบการรับสัญญาของ "<strong>' + escapeHtml(typed) + '</strong>"' + scope +
         '<br><a href="add-contract.html">ได้รับแล้ว? กดเพื่อบันทึกรับสัญญา</a>';
     } else if (currentFilter === "noreceipt") {
-      emptyBox.textContent = "ได้รับใบเสร็จครบทุกรายการแล้ว";
+      emptyBox.textContent = "ได้รับใบเสร็จครบทุกรายการแล้ว" + (currentCompany === "all" ? "" : " (บริษัท" + companyLabel(currentCompany) + ")");
+    } else if (currentCompany !== "all") {
+      emptyBox.textContent = "ยังไม่มีสัญญาของบริษัท" + companyLabel(currentCompany);
     } else {
       emptyBox.innerHTML = 'ยังไม่มีสัญญาที่บันทึกไว้ <a href="add-contract.html">บันทึกรับสัญญา</a>';
     }
@@ -104,7 +125,14 @@ function setFilter(filter) {
 
 searchBox.addEventListener("input", render);
 filterButtons.forEach((b) => b.addEventListener("click", () => setFilter(b.dataset.filter)));
-document.getElementById("show-missing").addEventListener("click", () => setFilter("noreceipt"));
+companyButtons.forEach((b) => b.addEventListener("click", () => {
+  currentCompany = b.dataset.company;
+  render();
+}));
+document.getElementById("show-missing").addEventListener("click", () => {
+  currentCompany = "all";
+  setFilter("noreceipt");
+});
 
 // ติ๊กในตารางแล้วบันทึกทันที
 tableBody.addEventListener("change", (event) => {

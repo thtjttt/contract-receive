@@ -14,7 +14,7 @@
     <div class="inner">
       <a class="brand" href="index.html">
         ระบบรับเข้าสัญญาซื้อขาย
-        <small>สำนักพิมพ์อมตะ</small>
+        <small>บริษัท ยงสวัสดิ์ / บริษัท อมตะ</small>
       </a>
       <nav class="nav">
         <a href="index.html" class="active">หน้าแรก</a>
@@ -29,14 +29,14 @@
     <p class="page-subtitle">เลือกเมนูตามงานที่ต้องการ</p>
 
     <a id="receipt-alert" class="alert alert-link" href="contracts.html?filter=noreceipt" hidden>
-      <span>⚠ มี <strong id="missing-count">0</strong> รายการ ยังไม่ได้รับใบเสร็จจากลูกค้า</span>
+      <span>⚠ มี <strong id="missing-count">0</strong> รายการ ยังไม่ได้รับใบเสร็จจากลูกค้า <span id="missing-detail"></span></span>
       <span class="go">ดูรายการ &rarr;</span>
     </a>
 
     <div class="card-grid">
       <a class="card" href="add-contract.html">
         <h2>บันทึกรับสัญญา</h2>
-        <p>ได้รับสัญญาซื้อขายจากลูกค้าแล้ว บันทึกชื่อลูกค้า วันที่ได้รับ และวันที่ต้องส่งของ</p>
+        <p>ได้รับสัญญาซื้อขายจากลูกค้าแล้ว เลือกบริษัท บันทึกชื่อลูกค้า วันที่ได้รับ และวันที่ต้องส่งของ</p>
         <span class="go">ไปที่หน้านี้ &rarr;</span>
       </a>
       <a class="card" href="contracts.html">
@@ -53,7 +53,7 @@
   </main>
 
   <footer class="site-footer">
-    สำนักพิมพ์อมตะ &middot; ระบบรับเข้าสัญญาซื้อขาย
+    บริษัท ยงสวัสดิ์ / บริษัท อมตะ &middot; ระบบรับเข้าสัญญาซื้อขาย
   </footer>
 
   <script src="data.js"></script>
@@ -61,6 +61,7 @@
     // เตือนบนหน้าแรก ถ้ามีรายการที่ยังไม่ได้รับใบเสร็จ
     const missing = missingReceipts(loadContracts());
     document.getElementById("missing-count").textContent = missing.length;
+    document.getElementById("missing-detail").textContent = missing.length ? "(" + companySummary(missing) + ")" : "";
     document.getElementById("receipt-alert").hidden = missing.length === 0;
   </script>
 </body>

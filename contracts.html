@@ -14,7 +14,7 @@
     <div class="inner">
       <a class="brand" href="index.html">
         ระบบรับเข้าสัญญาซื้อขาย
-        <small>สำนักพิมพ์อมตะ</small>
+        <small>บริษัท ยงสวัสดิ์ / บริษัท อมตะ</small>
       </a>
       <nav class="nav">
         <a href="index.html">หน้าแรก</a>
@@ -39,7 +39,7 @@
     </div>
 
     <div id="receipt-alert" class="alert" hidden>
-      <span>⚠ มี <strong id="missing-count">0</strong> รายการ ยังไม่ได้รับใบเสร็จจากลูกค้า</span>
+      <span>⚠ มี <strong id="missing-count">0</strong> รายการ ยังไม่ได้รับใบเสร็จจากลูกค้า <span id="missing-detail"></span></span>
       <button type="button" id="show-missing" class="button button-alert">ดูเฉพาะรายการนี้</button>
     </div>
 
@@ -49,6 +49,14 @@
     </div>
 
     <div class="filter-group">
+      <span class="filter-label">บริษัท:</span>
+      <button type="button" data-company="all">ทั้งหมด <span class="count">(<span class="n">0</span>)</span></button>
+      <button type="button" data-company="yongsawat">ยงสวัสดิ์ <span class="count">(<span class="n">0</span>)</span></button>
+      <button type="button" data-company="amata">อมตะ <span class="count">(<span class="n">0</span>)</span></button>
+    </div>
+
+    <div class="filter-group">
+      <span class="filter-label">ใบเสร็จ:</span>
       <button type="button" data-filter="all">ทั้งหมด <span class="count">(<span id="count-all">0</span>)</span></button>
       <button type="button" data-filter="noreceipt">ยังไม่ได้รับใบเสร็จ <span class="count">(<span id="count-noreceipt">0</span>)</span></button>
     </div>
@@ -61,6 +69,7 @@
         <thead>
           <tr>
             <th>ชื่อลูกค้า</th>
+            <th>บริษัท</th>
             <th>วันที่ได้รับสัญญา</th>
             <th>ใบเสร็จ</th>
             <th>วันที่ต้องส่งของ</th>
@@ -98,7 +107,7 @@
   </main>
 
   <footer class="site-footer">
-    สำนักพิมพ์อมตะ &middot; ระบบรับเข้าสัญญาซื้อขาย
+    บริษัท ยงสวัสดิ์ / บริษัท อมตะ &middot; ระบบรับเข้าสัญญาซื้อขาย
   </footer>
 
   <script src="data.js"></script>

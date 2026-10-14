@@ -10,6 +10,13 @@ const receiptDateInput = document.getElementById("receiptDate");
 const guaranteeBox = document.getElementById("guaranteeSent");
 const duplicateBox = document.getElementById("duplicate");
 const saveButton = document.getElementById("save-button");
+const companyGroup = document.getElementById("company-group");
+const companyInputs = document.querySelectorAll("input[name=company]");
+
+function selectedCompany() {
+  const checked = document.querySelector("input[name=company]:checked");
+  return checked ? checked.value : "";
+}
 
 // โหมดแก้ไข: หารายการที่จะแก้
 const editId = Number(new URLSearchParams(location.search).get("edit"));
@@ -25,6 +32,7 @@ if (editId && !editing) {
   document.title = "แก้ไขสัญญา | ระบบรับเข้าสัญญาซื้อขาย";
   document.getElementById("page-title").textContent = "แก้ไขสัญญา";
   document.getElementById("page-subtitle").textContent = "แก้ข้อมูลแล้วกด \"บันทึกการแก้ไข\"";
+  companyInputs.forEach((r) => { r.checked = r.value === editing.company; });
   fields.customer.value = editing.customer;
   fields.receivedDate.value = editing.receivedDate;
   fields.deliverDate.value = editing.deliverDate;
@@ -56,7 +64,7 @@ document.getElementById("receipt-clear").addEventListener("click", () => {
 
 function setError(key, message) {
   document.getElementById(key + "-error").textContent = message;
-  const input = fields[key] || receiptDateInput;
+  const input = key === "company" ? companyGroup : (fields[key] || receiptDateInput);
   input.classList.toggle("invalid", Boolean(message));
 }
 
@@ -69,10 +77,16 @@ Object.keys(fields).forEach((key) => {
   });
 });
 receiptDateInput.addEventListener("input", () => setError("receiptDate", ""));
+companyInputs.forEach((r) => r.addEventListener("change", () => {
+  setError("company", "");
+  duplicateBox.hidden = true;
+  saveButton.textContent = saveLabel;
+}));
 
 // ตรวจว่ากรอกครบและถูกต้อง
 function validate(data) {
   let ok = true;
+  if (!data.company) { setError("company", "กรุณาเลือกบริษัทที่ได้รับสัญญา"); ok = false; }
   if (!data.customer) { setError("customer", "กรุณากรอกชื่อลูกค้า"); ok = false; }
   if (!data.receivedDate) { setError("receivedDate", "กรุณาเลือกวันที่ได้รับสัญญา"); ok = false; }
   if (!data.deliverDate) {
@@ -99,6 +113,7 @@ form.addEventListener("submit", (event) => {
   event.preventDefault();
 
   const data = {
+    company: selectedCompany(),
     customer: fields.customer.value.trim().replace(/\s+/g, " "),
     receivedDate: fields.receivedDate.value,
     deliverDate: fields.deliverDate.value,
@@ -112,19 +127,19 @@ form.addEventListener("submit", (event) => {
 
   if (!validate(data)) {
     const firstBad = form.querySelector(".invalid");
-    if (firstBad) firstBad.focus();
+    if (firstBad) (firstBad.querySelector("input") || firstBad).focus();
     return;
   }
 
   const contracts = loadContracts();
 
-  // เคยบันทึกลูกค้ารายนี้แล้ว (ไม่นับรายการที่กำลังแก้): เตือนก่อน กดอีกครั้งจึงบันทึก
+  // เคยบันทึกลูกค้ารายนี้กับบริษัทเดียวกันแล้ว (ไม่นับรายการที่กำลังแก้): เตือนก่อน กดอีกครั้งจึงบันทึก
   const existing = contracts.filter((c) =>
-    c.id !== editId && sameText(c.customer, data.customer));
+    c.id !== editId && c.company === data.company && sameText(c.customer, data.customer));
   if (existing.length > 0 && duplicateBox.hidden) {
     const dates = existing.map((c) => formatThaiDate(c.receivedDate)).join(", ");
     duplicateBox.innerHTML =
-      "<strong>ลูกค้ารายนี้มีสัญญาบันทึกไว้แล้ว</strong>" +
+      "<strong>ลูกค้ารายนี้มีสัญญากับบริษัท" + companyLabel(data.company) + "บันทึกไว้แล้ว</strong>" +
       "<br>ได้รับเมื่อ: " + dates +
       "<br>ถ้าถูกต้องแล้ว กด \"ยืนยัน บันทึก\" ถ้าไม่ใช่ กด \"ยกเลิก\"";
     duplicateBox.hidden = false;

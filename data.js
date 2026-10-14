@@ -9,7 +9,14 @@ const BACKUP_KEY = "contracts.lastBackup";
 // เหลือไม่เกินกี่วันถึงวันส่งของ ให้เตือน (แถวสีส้ม)
 const SOON_DAYS = 7;
 
+// บริษัทที่ได้รับสัญญา (ใบเสร็จมาในนามบริษัทเดียวกับสัญญา)
+const COMPANIES = [
+  { key: "yongsawat", label: "ยงสวัสดิ์" },
+  { key: "amata", label: "อมตะ" }
+];
+
 // ข้อมูลสัญญา 1 รายการ มีช่องดังนี้
+// company = บริษัท ("yongsawat" / "amata", "" = ยังไม่ระบุ)
 // customer = ชื่อลูกค้า
 // receivedDate = วันที่ได้รับสัญญา, deliverDate = วันที่ต้องส่งของ
 // guaranteeSent = ส่งเก็บเอกสารรอทำเงินค้ำแล้วหรือยัง (true = ส่งแล้ว)
@@ -71,4 +78,27 @@ function escapeHtml(text) {
 // รายการที่ยังไม่ได้รับใบเสร็จ
 function missingReceipts(list) {
   return list.filter((c) => !c.receiptDate);
+}
+
+// ชื่อบริษัทที่แสดง ("" = ยังไม่ระบุ)
+function companyLabel(key) {
+  const found = COMPANIES.find((c) => c.key === key);
+  return found ? found.label : "ยังไม่ระบุ";
+}
+
+// ป้ายสีชื่อบริษัท
+function companyBadge(key) {
+  const known = COMPANIES.some((c) => c.key === key);
+  return '<span class="company company-' + (known ? key : "none") + '">' + companyLabel(key) + "</span>";
+}
+
+// สรุปจำนวนแยกบริษัท เช่น "ยงสวัสดิ์ 1, อมตะ 2"
+function companySummary(list) {
+  const parts = COMPANIES
+    .map((co) => ({ label: co.label, n: list.filter((c) => c.company === co.key).length }))
+    .filter((p) => p.n > 0)
+    .map((p) => p.label + " " + p.n);
+  const unknown = list.filter((c) => !COMPANIES.some((co) => co.key === c.company)).length;
+  if (unknown) parts.push("ยังไม่ระบุ " + unknown);
+  return parts.join(", ");
 }

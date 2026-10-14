@@ -5,7 +5,8 @@ const BACKUP_COLUMNS = [
   "วันที่ได้รับสัญญา",
   "วันที่ได้รับใบเสร็จ",
   "วันที่ต้องส่งของ",
-  "ส่งเก็บเอกสารรอทำเงินค้ำ"
+  "ส่งเก็บเอกสารรอทำเงินค้ำ",
+  "บริษัท"
 ];
 
 const backupStatus = document.getElementById("backup-status");
@@ -30,7 +31,8 @@ function downloadBackup() {
     c.receivedDate,
     c.receiptDate || "",
     c.deliverDate,
-    c.guaranteeSent ? "ส่งแล้ว" : "ยังไม่ส่ง"
+    c.guaranteeSent ? "ส่งแล้ว" : "ยังไม่ส่ง",
+    COMPANIES.some((co) => co.key === c.company) ? companyLabel(c.company) : ""
   ].map(csvCell).join(",")));
 
   // ﻿ ช่วยให้ Excel อ่านภาษาไทยถูก
@@ -121,8 +123,11 @@ function readBackup(text) {
     if (!customer || !receivedDate || !deliverDate || receiptDate === null) {
       throw new Error("ข้อมูลแถวที่ " + (i + 2) + " ในไฟล์ไม่ครบหรือวันที่ผิดรูปแบบ");
     }
+    // ไฟล์สำรองรุ่นเก่าไม่มีคอลัมน์บริษัท = ยังไม่ระบุ
+    const company = (COMPANIES.find((co) => co.label === get(5)) || { key: "" }).key;
     return {
       id: i + 1,
+      company,
       customer,
       receivedDate,
       deliverDate,
