@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>หน้าแรก | ระบบรับเข้าสัญญาซื้อขาย</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="inner">
+      <a class="brand" href="index.html">
+        ระบบรับเข้าสัญญาซื้อขาย
+        <small>สำนักพิมพ์อมตะ</small>
+      </a>
+      <nav class="nav">
+        <a href="index.html" class="active">หน้าแรก</a>
+        <a href="contracts.html">รายการสัญญาที่ได้รับ</a>
+        <a href="add-contract.html">บันทึกรับสัญญา</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <h1 class="page-title">ยินดีต้อนรับ</h1>
+    <p class="page-subtitle">เลือกเมนูตามงานที่ต้องการ</p>
+
+    <a id="receipt-alert" class="alert alert-link" href="contracts.html?filter=noreceipt" hidden>
+      <span>⚠ มี <strong id="missing-count">0</strong> รายการ ยังไม่ได้รับใบเสร็จจากลูกค้า</span>
+      <span class="go">ดูรายการ &rarr;</span>
+    </a>
+
+    <div class="card-grid">
+      <a class="card" href="add-contract.html">
+        <h2>บันทึกรับสัญญา</h2>
+        <p>ได้รับสัญญาซื้อขายจากลูกค้าแล้ว บันทึกชื่อลูกค้า วันที่ได้รับ และวันที่ต้องส่งของ</p>
+        <span class="go">ไปที่หน้านี้ &rarr;</span>
+      </a>
+      <a class="card" href="contracts.html">
+        <h2>รายการสัญญาที่ได้รับ</h2>
+        <p>ค้นหาว่าลูกค้ารายนี้ส่งสัญญามาหรือยัง ได้รับวันไหน ได้รับใบเสร็จหรือยัง และใกล้ถึงวันส่งของหรือยัง</p>
+        <span class="go">ไปที่หน้านี้ &rarr;</span>
+      </a>
+    </div>
+
+    <div class="notice">
+      ข้อมูลที่กรอกจะเก็บอยู่ในเบราว์เซอร์ของเครื่องนี้เท่านั้น เครื่องอื่นจะไม่เห็น
+      <br>อย่าลืมกด "ดาวน์โหลดสำรองข้อมูล" (ท้ายหน้ารายการสัญญา) เก็บไว้เป็นประจำ
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    สำนักพิมพ์อมตะ &middot; ระบบรับเข้าสัญญาซื้อขาย
+  </footer>
+
+  <script src="data.js"></script>
+  <script>
+    // เตือนบนหน้าแรก ถ้ามีรายการที่ยังไม่ได้รับใบเสร็จ
+    const missing = missingReceipts(loadContracts());
+    document.getElementById("missing-count").textContent = missing.length;
+    document.getElementById("receipt-alert").hidden = missing.length === 0;
+  </script>
+</body>
+</html>

@@ -1,0 +1,643 @@
+/* ===== สีและขนาดหลักของทั้งเว็บ ===== */
+:root {
+  --color-bg: #f5f6f8;
+  --color-surface: #ffffff;
+  --color-text: #1f2933;
+  --color-muted: #5b6672;
+  --color-border: #dde1e6;
+  --color-primary: #0277bd;
+  --color-primary-hover: #01609a;
+  --color-primary-soft: #e3f2fb;
+  --radius: 10px;
+  --shadow: 0 1px 3px rgba(16, 24, 40, 0.06);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 18px;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: "Sarabun", "Leelawadee UI", "Tahoma", sans-serif;
+  line-height: 1.6;
+}
+
+a {
+  color: var(--color-primary);
+}
+
+/* ===== แถบด้านบน ===== */
+.site-header {
+  background: var(--color-primary);
+  color: #ffffff;
+}
+
+.site-header .inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.brand {
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1.15rem;
+}
+
+.brand small {
+  display: block;
+  font-weight: 400;
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.nav {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.nav a {
+  color: #ffffff;
+  text-decoration: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+.nav a:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.nav a.active {
+  background: #ffffff;
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+/* ===== เนื้อหาหลัก ===== */
+main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 16px 48px;
+}
+
+.page-title {
+  margin: 0 0 4px;
+  font-size: 1.6rem;
+}
+
+.page-subtitle {
+  margin: 0 0 28px;
+  color: var(--color-muted);
+}
+
+/* ===== การ์ดเมนูหน้าแรก ===== */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 22px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.card:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 12px rgba(16, 24, 40, 0.08);
+}
+
+.card h2 {
+  margin: 0 0 6px;
+  font-size: 1.2rem;
+}
+
+.card p {
+  margin: 0 0 16px;
+  color: var(--color-muted);
+  flex: 1;
+}
+
+.card .go {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+/* ===== กล่องข้อความทั่วไป ===== */
+.panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 22px;
+}
+
+.notice {
+  margin-top: 28px;
+  padding: 14px 18px;
+  border-left: 4px solid var(--color-primary);
+  background: var(--color-surface);
+  color: var(--color-muted);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+
+/* ===== แถบค้นหาและปุ่มกรอง ===== */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.search-box {
+  flex: 1 1 320px;
+  font: inherit;
+  padding: 10px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface);
+}
+
+.search-box:focus {
+  outline: 2px solid var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.legend {
+  margin: 0 0 16px;
+  font-size: 0.9rem;
+  color: var(--color-muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legend-swatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  background: #fff3e0;
+  border-left: 4px solid #ef6c00;
+  flex-shrink: 0;
+}
+
+/* ===== ตารางสัญญา ===== */
+.table-wrap {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.data-table th,
+.data-table td {
+  padding: 12px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: top;
+}
+
+.data-table th {
+  background: #f0f3f6;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.data-table .num {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.data-table td[data-label="วันที่ได้รับสัญญา"],
+.data-table td[data-label="วันที่ต้องส่งของ"] {
+  white-space: nowrap;
+}
+
+.muted {
+  color: var(--color-muted);
+}
+
+.empty {
+  margin: 0;
+  padding: 28px;
+  text-align: center;
+  color: var(--color-muted);
+}
+
+/* แถวที่เหลือไม่เกิน 7 วันถึงวันส่งของ */
+.row-soon td {
+  background: #fff3e0;
+}
+
+.row-soon td:first-child {
+  box-shadow: inset 4px 0 0 #ef6c00;
+}
+
+.soon-note {
+  margin-top: 4px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #b34700;
+  white-space: nowrap;
+}
+
+/* ===== ท้ายหน้า ===== */
+.site-footer {
+  text-align: center;
+  color: var(--color-muted);
+  font-size: 0.85rem;
+  padding: 0 16px 32px;
+}
+
+/* ===== จอมือถือ ===== */
+@media (max-width: 600px) {
+  html {
+    font-size: 17px;
+  }
+  .site-header .inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  main {
+    padding-top: 24px;
+  }
+
+  /* ตารางบนมือถือ: เปลี่ยนแต่ละแถวเป็นการ์ด */
+  .table-wrap {
+    background: transparent;
+    border: none;
+  }
+  .data-table thead {
+    display: none;
+  }
+  .data-table,
+  .data-table tbody,
+  .data-table tr,
+  .data-table td {
+    display: block;
+    width: 100%;
+  }
+  .data-table tr {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .data-table td {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 14px;
+    text-align: right;
+  }
+  .data-table td::before {
+    content: attr(data-label);
+    color: var(--color-muted);
+    text-align: left;
+    flex-shrink: 0;
+  }
+  .data-table td:last-child {
+    border-bottom: none;
+  }
+  .soon-note {
+    width: 100%;
+  }
+}
+
+/* ===== ปุ่ม ข้อความสำเร็จ และแถวใหม่ ===== */
+.button {
+  display: inline-block;
+  font: inherit;
+  font-weight: 600;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  background: var(--color-primary);
+  color: #ffffff;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.button:hover {
+  background: var(--color-primary-hover);
+}
+
+.result-info {
+  margin: 0 0 8px;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+.success {
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  background: #e8f5e9;
+  color: #1b5e20;
+  font-weight: 600;
+}
+
+.row-new td {
+  background: var(--color-primary-soft);
+}
+
+.row-new td:first-child {
+  box-shadow: inset 4px 0 0 var(--color-primary);
+}
+
+/* ===== ฟอร์มบันทึกรับสัญญา ===== */
+.form {
+  max-width: 720px;
+}
+
+.field {
+  margin-bottom: 18px;
+  flex: 1 1 260px;
+}
+
+.field-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 20px;
+}
+
+.field label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.field input {
+  width: 100%;
+  font: inherit;
+  padding: 10px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.field input:focus {
+  outline: 2px solid var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.field input.invalid {
+  border-color: #c62828;
+  background: #fff5f5;
+}
+
+.req {
+  color: #c62828;
+}
+
+.hint {
+  margin: 4px 0 0;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+.error {
+  margin: 4px 0 0;
+  color: #c62828;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.error:empty,
+.hint:empty {
+  display: none;
+}
+
+.warning {
+  margin-bottom: 18px;
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  background: #fff3e0;
+  border-left: 4px solid #ef6c00;
+  color: #7a3300;
+}
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.button-light {
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+
+.button-light:hover {
+  background: #f0f3f6;
+}
+
+/* ===== ช่องติ๊ก ส่งเก็บเอกสารทำเงินค้ำ ===== */
+.check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  color: var(--color-muted);
+}
+
+.field label.check {
+  display: inline-flex;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.check input {
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  accent-color: #2e7d32;
+  cursor: pointer;
+}
+
+.check-done {
+  color: #1b5e20;
+  font-weight: 600;
+}
+
+/* ===== ปุ่มกรอง ===== */
+.filter-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.filter-group button {
+  font: inherit;
+  font-size: 0.95rem;
+  padding: 8px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.filter-group button:hover {
+  border-color: var(--color-primary);
+}
+
+.filter-group button.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.filter-group .count {
+  opacity: 0.8;
+}
+
+/* ===== เตือนใบเสร็จยังไม่มา ===== */
+.alert {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+  margin-bottom: 20px;
+  padding: 14px 18px;
+  border-radius: var(--radius);
+  background: #fdecea;
+  border-left: 5px solid #c62828;
+  color: #8e1c1c;
+  font-size: 1.05rem;
+}
+
+.alert[hidden] {
+  display: none;
+}
+
+.alert-link {
+  text-decoration: none;
+}
+
+.alert-link:hover {
+  background: #fbdcd8;
+}
+
+.alert .go {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.button-alert {
+  background: #c62828;
+}
+
+.button-alert:hover {
+  background: #a51f1f;
+}
+
+.check-missing {
+  color: #c62828;
+  font-weight: 600;
+}
+
+.wait-note {
+  margin-top: 4px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #c62828;
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .data-table td[data-label="ใบเสร็จ"] {
+    flex-wrap: wrap;
+  }
+  .data-table td[data-label="ใบเสร็จ"] .wait-note {
+    width: 100%;
+  }
+}
+
+/* ===== สำรองข้อมูล ===== */
+.backup {
+  margin-top: 32px;
+}
+
+.backup h2 {
+  margin: 0 0 6px;
+  font-size: 1.2rem;
+}
+
+.backup > .muted {
+  margin: 0 0 16px;
+}
+
+.backup-status {
+  margin: 12px 0 0;
+  color: var(--color-muted);
+  font-size: 0.95rem;
+}
+
+.backup-status:empty {
+  display: none;
+}
+
+.backup-warn {
+  color: #b34700;
+  font-weight: 600;
+}
+
+.restore-confirm {
+  margin: 16px 0 0;
+}
+
+.restore-confirm p {
+  margin: 0 0 12px;
+}
+
+.restore-message {
+  margin: 12px 0 0;
+  color: #1b5e20;
+  font-weight: 600;
+}
+
+.restore-error {
+  color: #c62828;
+}

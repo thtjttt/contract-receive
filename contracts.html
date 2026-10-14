@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>รายการสัญญาที่ได้รับ | ระบบรับเข้าสัญญาซื้อขาย</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="inner">
+      <a class="brand" href="index.html">
+        ระบบรับเข้าสัญญาซื้อขาย
+        <small>สำนักพิมพ์อมตะ</small>
+      </a>
+      <nav class="nav">
+        <a href="index.html">หน้าแรก</a>
+        <a href="contracts.html" class="active">รายการสัญญาที่ได้รับ</a>
+        <a href="add-contract.html">บันทึกรับสัญญา</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <h1 class="page-title">รายการสัญญาที่ได้รับ</h1>
+    <p class="page-subtitle">ค้นหาว่าลูกค้าส่งสัญญามาหรือยัง และได้รับวันที่เท่าไหร่</p>
+
+    <div id="success" class="success" hidden></div>
+
+    <div id="receipt-alert" class="alert" hidden>
+      <span>⚠ มี <strong id="missing-count">0</strong> รายการ ยังไม่ได้รับใบเสร็จจากลูกค้า</span>
+      <button type="button" id="show-missing" class="button button-alert">ดูเฉพาะรายการนี้</button>
+    </div>
+
+    <div class="toolbar">
+      <input id="search" class="search-box" type="search" placeholder="พิมพ์ชื่อลูกค้า เพื่อค้นหา" autocomplete="off">
+      <a class="button" href="add-contract.html">+ บันทึกรับสัญญา</a>
+    </div>
+
+    <div class="filter-group">
+      <button type="button" data-filter="all">ทั้งหมด <span class="count">(<span id="count-all">0</span>)</span></button>
+      <button type="button" data-filter="noreceipt">ยังไม่ได้รับใบเสร็จ <span class="count">(<span id="count-noreceipt">0</span>)</span></button>
+    </div>
+
+    <p class="legend"><span class="legend-swatch"></span> แถวสีส้ม = เหลือไม่เกิน 7 วันถึงวันส่งของ</p>
+    <p id="result-info" class="result-info"></p>
+
+    <div id="table-wrap" class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ชื่อลูกค้า</th>
+            <th>วันที่ได้รับสัญญา</th>
+            <th>ใบเสร็จ</th>
+            <th>วันที่ต้องส่งของ</th>
+            <th>ส่งเก็บเอกสารรอทำเงินค้ำ</th>
+          </tr>
+        </thead>
+        <tbody id="contract-rows"></tbody>
+      </table>
+    </div>
+    <p id="empty" class="empty panel" hidden></p>
+
+    <section class="panel backup">
+      <h2>สำรองข้อมูล</h2>
+      <p class="muted">ข้อมูลเก็บอยู่ในเบราว์เซอร์ของเครื่องนี้เท่านั้น ถ้าล้างข้อมูลเบราว์เซอร์หรือเปลี่ยนเครื่อง ข้อมูลจะหาย
+        ควรกด "ดาวน์โหลดสำรองข้อมูล" เก็บไว้เป็นประจำ (อย่างน้อยสัปดาห์ละครั้ง)</p>
+      <div class="form-actions">
+        <button type="button" id="backup-download" class="button">ดาวน์โหลดสำรองข้อมูล</button>
+        <label class="button button-light">
+          นำข้อมูลกลับมาจากไฟล์
+          <input type="file" id="restore-file" accept=".csv,text/csv" hidden>
+        </label>
+      </div>
+      <p id="backup-status" class="backup-status"></p>
+
+      <div id="restore-confirm" class="warning restore-confirm" hidden>
+        <p id="restore-summary"></p>
+        <div class="form-actions">
+          <button type="button" id="restore-yes" class="button">ยืนยัน นำข้อมูลกลับมา</button>
+          <button type="button" id="restore-no" class="button button-light">ยกเลิก</button>
+        </div>
+      </div>
+      <p id="restore-message" class="restore-message" hidden></p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    สำนักพิมพ์อมตะ &middot; ระบบรับเข้าสัญญาซื้อขาย
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="contracts.js"></script>
+  <script src="backup.js"></script>
+</body>
+</html>

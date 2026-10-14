@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>บันทึกรับสัญญา | ระบบรับเข้าสัญญาซื้อขาย</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="inner">
+      <a class="brand" href="index.html">
+        ระบบรับเข้าสัญญาซื้อขาย
+        <small>สำนักพิมพ์อมตะ</small>
+      </a>
+      <nav class="nav">
+        <a href="index.html">หน้าแรก</a>
+        <a href="contracts.html">รายการสัญญาที่ได้รับ</a>
+        <a href="add-contract.html" class="active">บันทึกรับสัญญา</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <h1 class="page-title">บันทึกรับสัญญา</h1>
+    <p class="page-subtitle">กรอกข้อมูลเมื่อได้รับสัญญาซื้อขายจากลูกค้า</p>
+
+    <form id="contract-form" class="panel form" novalidate>
+      <div class="field">
+        <label for="customer">ชื่อลูกค้า <span class="req">*</span></label>
+        <input id="customer" type="text" placeholder="เช่น โรงเรียนบ้านหนองสมมติ" autocomplete="off">
+        <p class="error" id="customer-error"></p>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="receivedDate">วันที่ได้รับสัญญา <span class="req">*</span></label>
+          <input id="receivedDate" type="date">
+          <p class="hint" id="receivedDate-thai"></p>
+          <p class="error" id="receivedDate-error"></p>
+        </div>
+
+        <div class="field">
+          <label for="deliverDate">วันที่ต้องส่งของ (ตามสัญญา) <span class="req">*</span></label>
+          <input id="deliverDate" type="date">
+          <p class="hint" id="deliverDate-thai"></p>
+          <p class="error" id="deliverDate-error"></p>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="check">
+          <input id="receiptWith" type="checkbox">
+          ได้รับใบเสร็จมาพร้อมสัญญาแล้ว
+        </label>
+        <p class="hint">ถ้าใบเสร็จยังไม่มา ไม่ต้องติ๊ก ระบบจะเตือนไว้ให้ และมาติ๊กทีหลังที่หน้ารายการได้</p>
+      </div>
+
+      <div class="field">
+        <label class="check">
+          <input id="guaranteeSent" type="checkbox">
+          ส่งเก็บเอกสารรอทำเงินค้ำ
+        </label>
+        <p class="hint">ยังไม่ส่ง ไม่ต้องติ๊ก มาติ๊กทีหลังที่หน้ารายการได้</p>
+      </div>
+
+      <div id="duplicate" class="warning" hidden></div>
+
+      <div class="form-actions">
+        <button type="submit" class="button" id="save-button">บันทึกรับสัญญา</button>
+        <a href="contracts.html" class="button button-light">ยกเลิก</a>
+      </div>
+    </form>
+  </main>
+
+  <footer class="site-footer">
+    สำนักพิมพ์อมตะ &middot; ระบบรับเข้าสัญญาซื้อขาย
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="add-contract.js"></script>
+</body>
+</html>
