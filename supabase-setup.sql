@@ -13,6 +13,7 @@ create table if not exists public.contracts (
   receipt_date   date,                                              -- วันที่ได้รับใบเสร็จ (ว่าง = ยังไม่ได้รับ)
   guarantee_sent boolean not null default false,                    -- ส่งเอกสารรอถอนเงินค้ำแล้ว
   sets           integer check (sets is null or sets > 0),           -- จำนวนชุดที่ลูกค้าส่งมา
+  items          jsonb not null default '[]'::jsonb check (jsonb_typeof(items) = 'array'), -- บริษัท+จำนวนชุด หลายบริษัท [{company, sets}]
   created_at     timestamptz not null default now()
 );
 

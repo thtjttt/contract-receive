@@ -10,6 +10,8 @@ const BACKUP_COLUMNS = [
   "ผู้บันทึก",
   "จำนวนชุด"
 ];
+// คอลัมน์จำนวนชุดแยกบริษัท เช่น "ชุด ยงสวัสดิ์"
+const SET_COLUMNS = COMPANIES.map((co) => "ชุด " + co.label);
 
 const backupStatus = document.getElementById("backup-status");
 const restoreInput = document.getElementById("restore-file");
@@ -35,16 +37,16 @@ function markBackedUp() {
 async function downloadBackup() {
   // ได้รายการตามมุมมองที่เลือกอยู่ (ของฉัน / ของทุกคน)
   const list = inView();
-  const lines = [BACKUP_COLUMNS.join(",")].concat(list.map((c) => [
+  const lines = [BACKUP_COLUMNS.concat(SET_COLUMNS).join(",")].concat(list.map((c) => [
     c.customer,
     c.receivedDate,
     c.receiptDate || "",
     c.deliverDate,
     c.guaranteeSent ? "ส่งแล้ว" : "ยังไม่ส่ง",
-    COMPANIES.some((co) => co.key === c.company) ? companyLabel(c.company) : "",
+    c.items.map((it) => companyLabel(it.company)).join(" + "),
     c.recorder || "",
     c.sets || ""
-  ].map(csvCell).join(",")));
+  ].concat(COMPANIES.map((co) => setsFor(c, co.key) || "")).map(csvCell).join(",")));
 
   // \uFEFF ช่วยให้ Excel อ่านภาษาไทยถูก
   const blob = new Blob(["\uFEFF" + lines.join("\r\n")], { type: "text/csv;charset=utf-8" });
@@ -155,6 +157,7 @@ function readBackup(text) {
   const oldNames = { "ส่งเอกสารรอถอนเงินค้ำ": "ส่งเก็บเอกสารรอทำเงินค้ำ" };
   const col = BACKUP_COLUMNS.map((name) =>
     header.indexOf(name) >= 0 ? header.indexOf(name) : header.indexOf(oldNames[name]));
+  const setCol = SET_COLUMNS.map((name) => header.indexOf(name));
   if (col[0] < 0 || col[1] < 0 || col[3] < 0) {
     throw new Error("ไฟล์นี้ไม่ใช่ไฟล์สำรองของระบบนี้ กรุณาเลือกไฟล์ที่ได้จากปุ่ม \"ดาวน์โหลดสำรองข้อมูล\"");
   }
@@ -168,12 +171,21 @@ function readBackup(text) {
     if (!customer || !receivedDate || !deliverDate || receiptDate === null) {
       throw new Error("ข้อมูลแถวที่ " + (i + 2) + " ในไฟล์ไม่ครบหรือวันที่ผิดรูปแบบ");
     }
-    // ไฟล์สำรองรุ่นเก่าไม่มีคอลัมน์บริษัท = ยังไม่ระบุ
-    const company = (COMPANIES.find((co) => co.label === get(5)) || { key: "" }).key;
+    // บริษัท + จำนวนชุด: ไฟล์รุ่นใหม่มีคอลัมน์ "ชุด <บริษัท>" แยกทีละบริษัท
+    // ไฟล์รุ่นเก่ามีบริษัทเดียวในคอลัมน์ "บริษัท" (ไม่มี = ยังไม่ระบุ)
+    let items = COMPANIES.map((co, k) => {
+      const cell = setCol[k] >= 0 ? (r[setCol[k]] || "").trim() : "";
+      return /^\d+$/.test(cell) && Number(cell) > 0 ? { company: co.key, sets: Number(cell) } : null;
+    }).filter(Boolean);
+    if (!items.length) {
+      const names = get(5).split("+").map((x) => x.trim());
+      items = COMPANIES.filter((co) => names.includes(co.label)).map((co) => ({ company: co.key, sets: null }));
+      const oldSets = /^\d+$/.test(get(7)) && Number(get(7)) > 0 ? Number(get(7)) : null;
+      if (items.length === 1) items[0].sets = oldSets;
+    }
     return {
       id: i + 1,
-      company,
-      sets: /^\d+$/.test(get(7)) && Number(get(7)) > 0 ? Number(get(7)) : null,
+      items,
       customer,
       receivedDate,
       deliverDate,

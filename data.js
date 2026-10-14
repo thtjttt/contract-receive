@@ -27,8 +27,8 @@ const COMPANIES = [
 
 // ข้อมูลสัญญา 1 รายการ มีช่องดังนี้
 // id = เลขรายการ, userId = เจ้าของ, recorder = ผู้บันทึก (อีเมล)
-// company = บริษัท (รหัสใน COMPANIES ด้านบน, "" = ยังไม่ระบุ)
-// sets = จำนวนชุดที่ลูกค้าส่งมา (null = ยังไม่ได้กรอก)
+// items = บริษัทที่ได้รับสัญญา พร้อมจำนวนชุด [{ company, sets }] (ว่าง = ยังไม่ระบุ)
+// sets = จำนวนชุดรวมทุกบริษัท (null = ยังไม่ได้กรอก)
 // customer = ชื่อลูกค้า
 // receivedDate = วันที่ได้รับสัญญา, deliverDate = วันที่ต้องส่งของ
 // guaranteeSent = ส่งเอกสารรอถอนเงินค้ำแล้วหรือยัง (true = ส่งแล้ว)
@@ -79,30 +79,45 @@ function recorderName(email) {
 
 // แปลงจากแถวในฐานข้อมูล เป็นข้อมูลที่หน้าเว็บใช้
 function fromRow(r) {
+  // บริษัท + จำนวนชุด (ข้อมูลรุ่นเก่ามีบริษัทเดียวในช่อง company / sets)
+  let items = Array.isArray(r.items) ? r.items : [];
+  if (!items.length && r.company) items = [{ company: r.company, sets: r.sets }];
+  items = items
+    .filter((it) => it && COMPANIES.some((co) => co.key === it.company))
+    .map((it) => ({ company: it.company, sets: Number(it.sets) > 0 ? Number(it.sets) : null }));
+  const total = items.reduce((sum, it) => sum + (it.sets || 0), 0);
   return {
     id: r.id,
     userId: r.user_id,
     recorder: r.recorder,
-    company: r.company || "",
+    items,
     customer: r.customer,
     receivedDate: r.received_date,
     deliverDate: r.deliver_date,
     receiptDate: r.receipt_date || "",
     guaranteeSent: Boolean(r.guarantee_sent),
-    sets: r.sets == null ? null : Number(r.sets)
+    sets: total || null
   };
 }
 
 // แปลงกลับเป็นแถวในฐานข้อมูล (ใส่เฉพาะช่องที่มี)
 function toRow(c) {
   const row = {};
-  if ("company" in c) row.company = c.company || "";
+  // รับได้ทั้งแบบหลายบริษัท (items) และแบบเก่า (company + sets)
+  let items = "items" in c ? c.items : ("company" in c && c.company ? [{ company: c.company, sets: c.sets }] : null);
+  if (items) {
+    items = items.map((it) => ({ company: it.company, sets: Number(it.sets) > 0 ? Number(it.sets) : null }));
+    row.items = items;
+    // ช่องเดิม: บริษัทแรก และจำนวนชุดรวม (เผื่ออ่านด้วยระบบรุ่นเก่า)
+    row.company = items.length ? items[0].company : "";
+    const total = items.reduce((sum, it) => sum + (it.sets || 0), 0);
+    row.sets = total || null;
+  }
   if ("customer" in c) row.customer = c.customer;
   if ("receivedDate" in c) row.received_date = c.receivedDate;
   if ("deliverDate" in c) row.deliver_date = c.deliverDate;
   if ("receiptDate" in c) row.receipt_date = c.receiptDate || null;
   if ("guaranteeSent" in c) row.guarantee_sent = Boolean(c.guaranteeSent);
-  if ("sets" in c) row.sets = c.sets ? Number(c.sets) : null;
   return row;
 }
 
@@ -216,13 +231,37 @@ function companyBadge(key) {
   return '<span class="company company-' + (known ? key : "none") + '">' + companyLabel(key) + "</span>";
 }
 
-// สรุปจำนวนแยกบริษัท เช่น "ยงสวัสดิ์ 1, อมตะ 2"
-function companySummary(list) {
+// ป้ายทุกบริษัทของสัญญา พร้อมจำนวนชุด เช่น [ยงสวัสดิ์ 20] [อมตะ 15]
+function itemsBadges(c, withSets) {
+  if (!c.items.length) return companyBadge("");
+  return '<span class="company-list">' + c.items.map((it) =>
+    '<span class="company company-' + it.company + '">' + companyLabel(it.company) +
+    (withSets !== false && it.sets ? " " + it.sets.toLocaleString("th-TH") : "") + "</span>"
+  ).join("") + "</span>";
+}
+
+// สัญญานี้มีบริษัทนี้ไหม
+function hasCompany(c, key) {
+  return c.items.some((it) => it.company === key);
+}
+
+// จำนวนชุดของบริษัทนี้ในสัญญานี้
+function setsFor(c, key) {
+  const it = c.items.find((x) => x.company === key);
+  return it && it.sets ? it.sets : 0;
+}
+
+// สรุปจำนวนแยกบริษัท เช่น "ยงสวัสดิ์ 2, อมตะ 1" (withSets = ใส่จำนวนชุดด้วย)
+function companySummary(list, withSets) {
   const parts = COMPANIES
-    .map((co) => ({ label: co.label, n: list.filter((c) => c.company === co.key).length }))
+    .map((co) => {
+      const inCo = list.filter((c) => hasCompany(c, co.key));
+      const sets = inCo.reduce((sum, c) => sum + setsFor(c, co.key), 0);
+      return { label: co.label, n: inCo.length, sets };
+    })
     .filter((p) => p.n > 0)
-    .map((p) => p.label + " " + p.n);
-  const unknown = list.filter((c) => !COMPANIES.some((co) => co.key === c.company)).length;
+    .map((p) => p.label + " " + p.n + (withSets ? " ฉบับ" + (p.sets ? " " + setsText(p.sets) : "") : ""));
+  const unknown = list.filter((c) => !c.items.length).length;
   if (unknown) parts.push("ยังไม่ระบุ " + unknown);
   return parts.join(", ");
 }

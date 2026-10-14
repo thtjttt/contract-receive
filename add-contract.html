@@ -30,22 +30,13 @@
     <p class="page-subtitle" id="page-subtitle">กรอกข้อมูลเมื่อได้รับสัญญาซื้อขายจากลูกค้า</p>
 
     <form id="contract-form" class="panel form" novalidate>
-      <fieldset class="field choice-group" id="company-group">
-        <legend>บริษัทที่ได้รับสัญญา <span class="req">*</span></legend>
-        <label class="choice"><input type="radio" name="company" value="yongsawat"> ยงสวัสดิ์</label>
-        <label class="choice"><input type="radio" name="company" value="amata"> อมตะ</label>
-        <label class="choice"><input type="radio" name="company" value="thaiaksorn"> ไทยอักษร</label>
-        <label class="choice"><input type="radio" name="company" value="chokcharoen"> โชคเจริญ</label>
-        <label class="choice"><input type="radio" name="company" value="phoenix"> ฟีนิกซ์</label>
+      <fieldset class="field company-sets" id="company-group">
+        <legend>บริษัทที่ได้รับสัญญา และจำนวนชุด <span class="req">*</span></legend>
+        <p class="hint">ติ๊กได้หลายบริษัท แล้วกรอกจำนวนชุดที่ลูกค้าส่งมาของแต่ละบริษัท</p>
+        <div id="company-rows" class="company-rows"></div>
+        <p id="company-total" class="company-total"></p>
         <p class="error" id="company-error"></p>
       </fieldset>
-
-      <div class="field field-short">
-        <label for="sets">จำนวนชุด <span class="req">*</span></label>
-        <input id="sets" type="number" min="1" step="1" inputmode="numeric" placeholder="เช่น 20">
-        <p class="hint">จำนวนชุดที่ลูกค้าส่งมาพร้อมสัญญา</p>
-        <p class="error" id="sets-error"></p>
-      </div>
 
       <div class="field">
         <label for="customer">ชื่อลูกค้า <span class="req">*</span></label>

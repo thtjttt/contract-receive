@@ -83,7 +83,7 @@ function render() {
   document.getElementById("missing-detail").textContent = missing.length ? "(" + companySummary(missing) + ")" : "";
 
   // ตัวเลขบนปุ่มกรอง: นับตามบริษัทที่เลือกอยู่
-  const inCompany = viewList.filter((c) => currentCompany === "all" || c.company === currentCompany);
+  const inCompany = viewList.filter((c) => currentCompany === "all" || hasCompany(c, currentCompany));
   document.getElementById("count-all").textContent = inCompany.length;
   document.getElementById("count-noreceipt").textContent = missingReceipts(inCompany).length;
   filterButtons.forEach((b) => b.classList.toggle("active", b.dataset.filter === currentFilter));
@@ -95,7 +95,7 @@ function render() {
     b.classList.toggle("active", key === currentCompany);
     b.querySelector(".n").textContent = key === "all"
       ? inStatus.length
-      : inStatus.filter((c) => c.company === key).length;
+      : inStatus.filter((c) => hasCompany(c, key)).length;
   });
 
   // เรียงรับล่าสุดอยู่บนสุด
@@ -122,7 +122,7 @@ function render() {
       : '<span class="muted">ดูอย่างเดียว</span>';
     return "<tr" + (classes ? ' class="' + classes + '"' : "") + ">" +
       '<td data-label="ชื่อลูกค้า">' + escapeHtml(c.customer) + "</td>" +
-      '<td data-label="บริษัท">' + companyBadge(c.company) + "</td>" +
+      '<td data-label="บริษัท">' + itemsBadges(c) + "</td>" +
       '<td data-label="จำนวนชุด" class="sets-col">' + setsText(c.sets) + "</td>" +
       '<td data-label="ผู้บันทึก" class="recorder-col" title="' + escapeHtml(c.recorder || "") + '">' +
         "<span>" + escapeHtml(recorderName(c.recorder)) + (mine ? ' <span class="muted">(คุณ)</span>' : "") + "</span></td>" +
@@ -276,7 +276,7 @@ document.getElementById("migrate-yes").addEventListener("click", async (ev) => {
   ev.target.textContent = "กำลังย้ายข้อมูล…";
   try {
     const added = await addContracts(legacy.map((c) => ({
-      company: COMPANIES.some((co) => co.key === c.company) ? c.company : "",
+      items: COMPANIES.some((co) => co.key === c.company) ? [{ company: c.company, sets: c.sets || null }] : [],
       customer: c.customer,
       receivedDate: c.receivedDate,
       deliverDate: c.deliverDate,

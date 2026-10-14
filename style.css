@@ -1066,3 +1066,82 @@ a.user-logout {
 main {
   max-width: 1280px;
 }
+
+/* ===== บริษัท + จำนวนชุด (ติ๊กได้หลายบริษัท) ===== */
+.company-sets {
+  border: none;
+  padding: 0;
+  margin: 0 0 18px;
+  min-width: 0;
+}
+
+.company-sets legend {
+  font-weight: 600;
+  margin-bottom: 4px;
+  padding: 0;
+}
+
+.company-rows {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.company-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  max-width: 440px;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface);
+}
+
+.company-row.is-checked {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+}
+
+.field .company-row label.company-check {
+  display: inline-flex;
+  margin: 0;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.company-sets-input {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.field .company-sets-input input {
+  width: 110px;
+  padding: 6px 10px;
+}
+
+.field .company-sets-input input:disabled {
+  background: #f0f3f6;
+}
+
+.company-total {
+  margin: 8px 0 0;
+  font-weight: 600;
+}
+
+.company-total:empty {
+  display: none;
+}
+
+.company-sets.invalid .company-row {
+  border-color: #c62828;
+}
+
+.company-list {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}

@@ -3,7 +3,6 @@
 const form = document.getElementById("contract-form");
 const fields = {
   customer: document.getElementById("customer"),
-  sets: document.getElementById("sets"),
   receivedDate: document.getElementById("receivedDate"),
   deliverDate: document.getElementById("deliverDate")
 };
@@ -12,14 +11,69 @@ const guaranteeBox = document.getElementById("guaranteeSent");
 const duplicateBox = document.getElementById("duplicate");
 const saveButton = document.getElementById("save-button");
 const companyGroup = document.getElementById("company-group");
-const companyInputs = document.querySelectorAll("input[name=company]");
+const companyRows = document.getElementById("company-rows");
+const companyTotal = document.getElementById("company-total");
 
-function selectedCompany() {
-  const checked = document.querySelector("input[name=company]:checked");
-  return checked ? checked.value : "";
+/* ----- บริษัท + จำนวนชุด: ติ๊กได้หลายบริษัท ----- */
+
+companyRows.innerHTML = COMPANIES.map((co) =>
+  '<div class="company-row" data-row="' + co.key + '">' +
+  '<label class="check company-check"><input type="checkbox" data-company="' + co.key + '"> ' + co.label + "</label>" +
+  '<span class="company-sets-input">' +
+  '<input type="number" min="1" step="1" inputmode="numeric" data-sets="' + co.key + '" aria-label="จำนวนชุดของ ' + co.label + '" disabled>' +
+  " ชุด</span>" +
+  "</div>"
+).join("");
+
+const companyBoxes = companyRows.querySelectorAll("input[data-company]");
+const setsBox = (key) => companyRows.querySelector('input[data-sets="' + key + '"]');
+
+// ตัวเลขชุด: ตัวเลขเต็มตั้งแต่ 1 (ผิดรูปแบบ = 0)
+function readSets(input) {
+  const text = input.value.trim();
+  return /^\d+$/.test(text) && Number(text) > 0 ? Number(text) : 0;
 }
 
-// โหมดแก้ไข: เลขรายการที่จะแก้ (โหลดข้อมูลจริงใน start ด้านล่าง)
+// บริษัทที่ติ๊ก พร้อมจำนวนชุด
+function selectedItems() {
+  return [...companyBoxes].filter((b) => b.checked).map((b) => ({
+    company: b.dataset.company,
+    sets: readSets(setsBox(b.dataset.company))
+  }));
+}
+
+function updateCompanyRows() {
+  companyBoxes.forEach((b) => {
+    const input = setsBox(b.dataset.company);
+    input.disabled = !b.checked;
+    if (!b.checked) input.value = "";
+    b.closest(".company-row").classList.toggle("is-checked", b.checked);
+  });
+  const items = selectedItems();
+  const total = items.reduce((sum, i) => sum + i.sets, 0);
+  companyTotal.textContent = items.length ? "รวม " + items.length + " บริษัท " + setsText(total) : "";
+}
+
+companyBoxes.forEach((b) => b.addEventListener("change", () => {
+  updateCompanyRows();
+  if (b.checked) setsBox(b.dataset.company).focus();
+  clearCompanyError();
+}));
+companyRows.querySelectorAll("input[data-sets]").forEach((input) => input.addEventListener("input", () => {
+  updateCompanyRows();
+  clearCompanyError();
+}));
+
+function clearCompanyError() {
+  setError("company", "");
+  companyRows.querySelectorAll(".invalid").forEach((el) => el.classList.remove("invalid"));
+  duplicateBox.hidden = true;
+  saveButton.textContent = saveLabel;
+}
+
+/* ----- โหมดแก้ไข ----- */
+
+// เลขรายการที่จะแก้ (โหลดข้อมูลจริงใน start ด้านล่าง)
 const editId = Number(new URLSearchParams(location.search).get("edit"));
 let editing = null;
 let saveLabel = editId ? "บันทึกการแก้ไข" : "บันทึกรับสัญญา";
@@ -41,9 +95,14 @@ function fillForEdit() {
   document.title = "แก้ไขสัญญา | ระบบรับเข้าสัญญาซื้อขาย";
   document.getElementById("page-title").textContent = "แก้ไขสัญญา";
   document.getElementById("page-subtitle").textContent = "แก้ข้อมูลแล้วกด \"บันทึกการแก้ไข\"";
-  companyInputs.forEach((r) => { r.checked = r.value === editing.company; });
+  editing.items.forEach((item) => {
+    const box = companyRows.querySelector('input[data-company="' + item.company + '"]');
+    if (!box) return;
+    box.checked = true;
+    setsBox(item.company).value = item.sets || "";
+  });
+  updateCompanyRows();
   fields.customer.value = editing.customer;
-  fields.sets.value = editing.sets || "";
   fields.receivedDate.value = editing.receivedDate;
   fields.deliverDate.value = editing.deliverDate;
   receiptDateInput.value = editing.receiptDate || "";
@@ -88,17 +147,22 @@ Object.keys(fields).forEach((key) => {
   });
 });
 receiptDateInput.addEventListener("input", () => setError("receiptDate", ""));
-companyInputs.forEach((r) => r.addEventListener("change", () => {
-  setError("company", "");
-  duplicateBox.hidden = true;
-  saveButton.textContent = saveLabel;
-}));
 
 // ตรวจว่ากรอกครบและถูกต้อง
 function validate(data) {
   let ok = true;
-  if (!data.company) { setError("company", "กรุณาเลือกบริษัทที่ได้รับสัญญา"); ok = false; }
-  if (!data.sets) { setError("sets", "กรุณากรอกจำนวนชุด เป็นตัวเลขเต็ม ตั้งแต่ 1 ขึ้นไป"); ok = false; }
+  if (!data.items.length) {
+    setError("company", "กรุณาติ๊กบริษัทที่ได้รับสัญญา อย่างน้อย 1 บริษัท");
+    ok = false;
+  } else {
+    const missing = data.items.filter((i) => !i.sets);
+    missing.forEach((i) => setsBox(i.company).classList.add("invalid"));
+    if (missing.length) {
+      setError("company", "กรุณากรอกจำนวนชุดของ " + missing.map((i) => companyLabel(i.company)).join(", ") +
+        " เป็นตัวเลขเต็ม ตั้งแต่ 1 ขึ้นไป");
+      ok = false;
+    }
+  }
   if (!data.customer) { setError("customer", "กรุณากรอกชื่อลูกค้า"); ok = false; }
   if (!data.receivedDate) { setError("receivedDate", "กรุณาเลือกวันที่ได้รับสัญญา"); ok = false; }
   if (!data.deliverDate) {
@@ -123,12 +187,12 @@ function sameText(a, b) {
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
+  setError("company", "");
+  companyRows.querySelectorAll(".invalid").forEach((el) => el.classList.remove("invalid"));
 
   const data = {
-    company: selectedCompany(),
+    items: selectedItems(),
     customer: fields.customer.value.trim().replace(/\s+/g, " "),
-    // จำนวนชุด: ต้องเป็นตัวเลขเต็มตั้งแต่ 1 (ผิดรูปแบบ = 0 แล้วจะถูกเตือน)
-    sets: /^\d+$/.test(fields.sets.value.trim()) && Number(fields.sets.value) > 0 ? Number(fields.sets.value) : 0,
     receivedDate: fields.receivedDate.value,
     deliverDate: fields.deliverDate.value,
     guaranteeSent: guaranteeBox.checked,
@@ -140,8 +204,8 @@ form.addEventListener("submit", async (event) => {
   };
 
   if (!validate(data)) {
-    const firstBad = form.querySelector(".invalid");
-    if (firstBad) (firstBad.querySelector("input") || firstBad).focus();
+    const firstBad = form.querySelector("input.invalid, .invalid input, .invalid");
+    if (firstBad) firstBad.focus();
     return;
   }
 
@@ -157,12 +221,15 @@ form.addEventListener("submit", async (event) => {
 
 async function saveForm(data) {
   // เคยบันทึกลูกค้ารายนี้กับบริษัทเดียวกันแล้ว (ของใครก็ได้ ไม่นับรายการที่กำลังแก้): เตือนก่อน กดอีกครั้งจึงบันทึก
-  if (duplicateBox.hidden) {
+  // ตอนแก้ไข: เตือนเฉพาะบริษัทที่เพิ่งติ๊กเพิ่ม (บริษัทเดิมเคยยืนยันไปแล้ว)
+  const oldKeys = editing ? editing.items.map((i) => i.company) : [];
+  const keys = data.items.map((i) => i.company).filter((k) => !oldKeys.includes(k));
+  if (duplicateBox.hidden && keys.length) {
     const contracts = await fetchContracts();
     const existing = contracts.filter((c) =>
-      c.id !== editId && c.company === data.company && sameText(c.customer, data.customer));
+      c.id !== editId && sameText(c.customer, data.customer) && c.items.some((i) => keys.includes(i.company)));
     if (existing.length > 0) {
-      showDuplicate(data, existing);
+      showDuplicate(keys, existing);
       return;
     }
   }
@@ -177,18 +244,17 @@ async function saveForm(data) {
   location.href = "contracts.html?" + (editing ? "edited=" : "new=") + id;
 }
 
-function showDuplicate(data, existing) {
-  {
-    const dates = existing.map((c) => formatThaiDate(c.receivedDate) +
-      (c.userId === currentUser.id ? "" : " (บันทึกโดย " + escapeHtml(recorderName(c.recorder)) + ")")).join(", ");
-    duplicateBox.innerHTML =
-      "<strong>ลูกค้ารายนี้มีสัญญากับบริษัท" + companyLabel(data.company) + "บันทึกไว้แล้ว</strong>" +
-      "<br>ได้รับเมื่อ: " + dates +
-      "<br>ถ้าถูกต้องแล้ว กด \"ยืนยัน บันทึก\" ถ้าไม่ใช่ กด \"ยกเลิก\"";
-    duplicateBox.hidden = false;
-    saveButton.textContent = "ยืนยัน บันทึก";
-    duplicateBox.scrollIntoView({ block: "center" });
-  }
+function showDuplicate(keys, existing) {
+  const same = [...new Set(existing.flatMap((c) => c.items.map((i) => i.company)).filter((k) => keys.includes(k)))];
+  const dates = existing.map((c) => formatThaiDate(c.receivedDate) +
+    (c.userId === currentUser.id ? "" : " (บันทึกโดย " + escapeHtml(recorderName(c.recorder)) + ")")).join(", ");
+  duplicateBox.innerHTML =
+    "<strong>ลูกค้ารายนี้มีสัญญากับบริษัท" + same.map(companyLabel).join(", ") + " บันทึกไว้แล้ว</strong>" +
+    "<br>ได้รับเมื่อ: " + dates +
+    "<br>ถ้าถูกต้องแล้ว กด \"ยืนยัน บันทึก\" ถ้าไม่ใช่ กด \"ยกเลิก\"";
+  duplicateBox.hidden = false;
+  saveButton.textContent = "ยืนยัน บันทึก";
+  duplicateBox.scrollIntoView({ block: "center" });
 }
 
 /* ----- เริ่มต้น: เข้าสู่ระบบ แล้วโหลดรายการที่จะแก้ (ถ้ามี) ----- */
