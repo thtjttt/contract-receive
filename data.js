@@ -61,7 +61,7 @@ function showUserBox(user) {
   const box = document.createElement("div");
   box.id = "user-box";
   box.className = "user-box";
-  box.innerHTML = '<span class="user-email">' + escapeHtml(user.email) + "</span>" +
+  box.innerHTML = '<span class="user-email" title="' + escapeHtml(user.email) + '">' + escapeHtml(recorderName(user.email)) + "</span>" +
     '<a class="user-logout" href="change-password.html">เปลี่ยนรหัสผ่าน</a>' +
     '<button type="button" class="user-logout">ออกจากระบบ</button>';
   box.querySelector("button").addEventListener("click", async () => {
@@ -71,9 +71,13 @@ function showUserBox(user) {
   inner.appendChild(box);
 }
 
-// ชื่อสั้นของผู้บันทึก (ส่วนหน้าของอีเมล)
+// ชื่อสั้นของผู้บันทึก ให้อ่าน/พิมพ์ง่าย
+// "yongsawat.printing+somchai@gmail.com" → "somchai", "yongsawat.bee@gmail.com" → "yongsawat.bee"
 function recorderName(email) {
-  return email ? String(email).split("@")[0] : "-";
+  if (!email) return "-";
+  const local = String(email).split("@")[0];
+  const plus = local.indexOf("+");
+  return plus >= 0 && plus < local.length - 1 ? local.slice(plus + 1) : local;
 }
 
 /* ===== อ่าน / บันทึก / แก้ / ลบ ===== */

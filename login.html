@@ -22,11 +22,12 @@
   <main>
     <form id="login-form" class="panel form login-form" novalidate>
       <h1 class="page-title">เข้าสู่ระบบ</h1>
-      <p class="page-subtitle">ใช้อีเมลและรหัสผ่านที่ได้รับจากผู้ดูแลระบบ</p>
+      <p class="page-subtitle">ใช้ชื่อผู้ใช้ (หรืออีเมล) และรหัสผ่านที่ได้รับจากผู้ดูแลระบบ</p>
 
       <div class="field">
-        <label for="email">อีเมล</label>
-        <input id="email" type="email" autocomplete="username" placeholder="เช่น name@example.com">
+        <label for="email">ชื่อผู้ใช้ หรือ อีเมล</label>
+        <input id="email" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="เช่น somchai หรือ name@example.com">
+        <p class="hint">พิมพ์แค่ชื่อสั้นได้ (คำหลังเครื่องหมาย + ในอีเมล) หรือพิมพ์อีเมลเต็ม</p>
       </div>
 
       <div class="field">

@@ -35,7 +35,7 @@ function render() {
 
   const isToday = day === todayISO();
   reportSubtitle.textContent = "วันที่ได้รับสัญญา: " + formatThaiDate(day) + (isToday ? " (วันนี้)" : "") +
-    " · " + (mineOnly ? "เฉพาะของฉัน (" + currentUser.email + ")" : "ของทุกคน");
+    " · " + (mineOnly ? "เฉพาะของฉัน (" + recorderName(currentUser.email) + ")" : "ของทุกคน");
 
   reportRows.innerHTML = rows.map((c, i) =>
     "<tr>" +

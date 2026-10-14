@@ -10,6 +10,15 @@ function nextPage() {
   return /^[\w-]+\.html(\?[\w=&%-]*)?$/.test(next) ? next : "index.html";
 }
 
+// ชื่อสั้น → อีเมลเต็ม เช่น "somchai" → "yongsawat.printing+somchai@gmail.com"
+// ถ้าพิมพ์อีเมลเต็ม (มี @) ใช้ตามที่พิมพ์
+const SHORT_NAME_EMAIL = { before: "yongsawat.printing+", after: "@gmail.com" };
+function toLoginEmail(text) {
+  const value = text.trim().toLowerCase();
+  if (!value || value.includes("@")) return value;
+  return SHORT_NAME_EMAIL.before + value + SHORT_NAME_EMAIL.after;
+}
+
 // เข้าสู่ระบบอยู่แล้ว ไปหน้าถัดไปเลย
 db.auth.getSession().then(({ data }) => {
   if (data.session) location.replace(nextPage());
@@ -17,12 +26,12 @@ db.auth.getSession().then(({ data }) => {
 
 loginForm.addEventListener("submit", async (event) => {
   event.preventDefault();
-  const email = document.getElementById("email").value.trim();
+  const email = toLoginEmail(document.getElementById("email").value);
   const password = document.getElementById("password").value;
   loginError.textContent = "";
 
   if (!email || !password) {
-    loginError.textContent = "กรุณากรอกอีเมลและรหัสผ่าน";
+    loginError.textContent = "กรุณากรอกชื่อผู้ใช้ (หรืออีเมล) และรหัสผ่าน";
     return;
   }
 
@@ -34,7 +43,7 @@ loginForm.addEventListener("submit", async (event) => {
 
   if (error) {
     loginError.textContent = /invalid/i.test(error.message)
-      ? "อีเมลหรือรหัสผ่านไม่ถูกต้อง"
+      ? "ชื่อผู้ใช้ (หรืออีเมล) หรือรหัสผ่านไม่ถูกต้อง"
       : friendlyError(error);
     return;
   }
