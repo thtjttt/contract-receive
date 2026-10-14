@@ -123,6 +123,7 @@ function render() {
     return "<tr" + (classes ? ' class="' + classes + '"' : "") + ">" +
       '<td data-label="ชื่อลูกค้า">' + escapeHtml(c.customer) + "</td>" +
       '<td data-label="บริษัท">' + companyBadge(c.company) + "</td>" +
+      '<td data-label="จำนวนชุด" class="sets-col">' + setsText(c.sets) + "</td>" +
       '<td data-label="ผู้บันทึก" class="recorder-col" title="' + escapeHtml(c.recorder || "") + '">' +
         "<span>" + escapeHtml(recorderName(c.recorder)) + (mine ? ' <span class="muted">(คุณ)</span>' : "") + "</span></td>" +
       '<td data-label="วันที่ได้รับสัญญา">' + formatThaiDate(c.receivedDate) + "</td>" +

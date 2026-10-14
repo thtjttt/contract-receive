@@ -42,6 +42,7 @@ function render() {
     '<td class="num">' + (i + 1) + "</td>" +
     "<td>" + escapeHtml(c.customer) + "</td>" +
     "<td>" + companyBadge(c.company) + "</td>" +
+    '<td class="sets-col">' + setsText(c.sets) + "</td>" +
     "<td>" + escapeHtml(recorderName(c.recorder)) + "</td>" +
     "<td>" + formatThaiDate(c.deliverDate) + "</td>" +
     "<td>" + (c.receiptDate
@@ -55,7 +56,7 @@ function render() {
   reportEmpty.hidden = rows.length > 0;
   reportEmpty.textContent = "ไม่มีสัญญาที่ได้รับใน" + (isToday ? "วันนี้" : "วันที่ " + formatThaiDate(day));
   reportSummary.textContent = rows.length
-    ? "รวม " + rows.length + " ฉบับ (" + companySummary(rows) + ")" +
+    ? "รวม " + rows.length + " ฉบับ " + setsText(totalSets(rows)) + " (" + companySummary(rows) + ")" +
       " · ยังไม่ได้รับใบเสร็จ " + missingReceipts(rows).length + " ฉบับ"
     : "";
   document.getElementById("report-printed").textContent = "พิมพ์เมื่อ " + formatThaiDate(todayISO()) +

@@ -12,6 +12,7 @@ create table if not exists public.contracts (
   deliver_date   date not null,                                     -- วันที่ต้องส่งของ
   receipt_date   date,                                              -- วันที่ได้รับใบเสร็จ (ว่าง = ยังไม่ได้รับ)
   guarantee_sent boolean not null default false,                    -- ส่งเอกสารรอถอนเงินค้ำแล้ว
+  sets           integer check (sets is null or sets > 0),           -- จำนวนชุดที่ลูกค้าส่งมา
   created_at     timestamptz not null default now()
 );
 

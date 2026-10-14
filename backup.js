@@ -7,7 +7,8 @@ const BACKUP_COLUMNS = [
   "วันที่ต้องส่งของ",
   "ส่งเอกสารรอถอนเงินค้ำ",
   "บริษัท",
-  "ผู้บันทึก"
+  "ผู้บันทึก",
+  "จำนวนชุด"
 ];
 
 const backupStatus = document.getElementById("backup-status");
@@ -41,7 +42,8 @@ async function downloadBackup() {
     c.deliverDate,
     c.guaranteeSent ? "ส่งแล้ว" : "ยังไม่ส่ง",
     COMPANIES.some((co) => co.key === c.company) ? companyLabel(c.company) : "",
-    c.recorder || ""
+    c.recorder || "",
+    c.sets || ""
   ].map(csvCell).join(",")));
 
   // \uFEFF ช่วยให้ Excel อ่านภาษาไทยถูก
@@ -171,6 +173,7 @@ function readBackup(text) {
     return {
       id: i + 1,
       company,
+      sets: /^\d+$/.test(get(7)) && Number(get(7)) > 0 ? Number(get(7)) : null,
       customer,
       receivedDate,
       deliverDate,

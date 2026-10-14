@@ -28,6 +28,7 @@ const COMPANIES = [
 // ข้อมูลสัญญา 1 รายการ มีช่องดังนี้
 // id = เลขรายการ, userId = เจ้าของ, recorder = ผู้บันทึก (อีเมล)
 // company = บริษัท (รหัสใน COMPANIES ด้านบน, "" = ยังไม่ระบุ)
+// sets = จำนวนชุดที่ลูกค้าส่งมา (null = ยังไม่ได้กรอก)
 // customer = ชื่อลูกค้า
 // receivedDate = วันที่ได้รับสัญญา, deliverDate = วันที่ต้องส่งของ
 // guaranteeSent = ส่งเอกสารรอถอนเงินค้ำแล้วหรือยัง (true = ส่งแล้ว)
@@ -87,7 +88,8 @@ function fromRow(r) {
     receivedDate: r.received_date,
     deliverDate: r.deliver_date,
     receiptDate: r.receipt_date || "",
-    guaranteeSent: Boolean(r.guarantee_sent)
+    guaranteeSent: Boolean(r.guarantee_sent),
+    sets: r.sets == null ? null : Number(r.sets)
   };
 }
 
@@ -100,6 +102,7 @@ function toRow(c) {
   if ("deliverDate" in c) row.deliver_date = c.deliverDate;
   if ("receiptDate" in c) row.receipt_date = c.receiptDate || null;
   if ("guaranteeSent" in c) row.guarantee_sent = Boolean(c.guaranteeSent);
+  if ("sets" in c) row.sets = c.sets ? Number(c.sets) : null;
   return row;
 }
 
@@ -222,4 +225,14 @@ function companySummary(list) {
   const unknown = list.filter((c) => !COMPANIES.some((co) => co.key === c.company)).length;
   if (unknown) parts.push("ยังไม่ระบุ " + unknown);
   return parts.join(", ");
+}
+
+// "20 ชุด" (ยังไม่ได้กรอก = "-")
+function setsText(n) {
+  return n ? n.toLocaleString("th-TH") + " ชุด" : "-";
+}
+
+// รวมจำนวนชุด
+function totalSets(list) {
+  return list.reduce((sum, c) => sum + (c.sets || 0), 0);
 }

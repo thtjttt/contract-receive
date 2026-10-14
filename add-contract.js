@@ -3,6 +3,7 @@
 const form = document.getElementById("contract-form");
 const fields = {
   customer: document.getElementById("customer"),
+  sets: document.getElementById("sets"),
   receivedDate: document.getElementById("receivedDate"),
   deliverDate: document.getElementById("deliverDate")
 };
@@ -42,6 +43,7 @@ function fillForEdit() {
   document.getElementById("page-subtitle").textContent = "แก้ข้อมูลแล้วกด \"บันทึกการแก้ไข\"";
   companyInputs.forEach((r) => { r.checked = r.value === editing.company; });
   fields.customer.value = editing.customer;
+  fields.sets.value = editing.sets || "";
   fields.receivedDate.value = editing.receivedDate;
   fields.deliverDate.value = editing.deliverDate;
   receiptDateInput.value = editing.receiptDate || "";
@@ -96,6 +98,7 @@ companyInputs.forEach((r) => r.addEventListener("change", () => {
 function validate(data) {
   let ok = true;
   if (!data.company) { setError("company", "กรุณาเลือกบริษัทที่ได้รับสัญญา"); ok = false; }
+  if (!data.sets) { setError("sets", "กรุณากรอกจำนวนชุด เป็นตัวเลขเต็ม ตั้งแต่ 1 ขึ้นไป"); ok = false; }
   if (!data.customer) { setError("customer", "กรุณากรอกชื่อลูกค้า"); ok = false; }
   if (!data.receivedDate) { setError("receivedDate", "กรุณาเลือกวันที่ได้รับสัญญา"); ok = false; }
   if (!data.deliverDate) {
@@ -124,6 +127,8 @@ form.addEventListener("submit", async (event) => {
   const data = {
     company: selectedCompany(),
     customer: fields.customer.value.trim().replace(/\s+/g, " "),
+    // จำนวนชุด: ต้องเป็นตัวเลขเต็มตั้งแต่ 1 (ผิดรูปแบบ = 0 แล้วจะถูกเตือน)
+    sets: /^\d+$/.test(fields.sets.value.trim()) && Number(fields.sets.value) > 0 ? Number(fields.sets.value) : 0,
     receivedDate: fields.receivedDate.value,
     deliverDate: fields.deliverDate.value,
     guaranteeSent: guaranteeBox.checked,
