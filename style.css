@@ -1166,3 +1166,53 @@ main {
     color: #000000;
   }
 }
+
+/* ===== รายชื่อลูกค้าให้เลือกขณะพิมพ์ ===== */
+.suggest-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.toolbar .suggest-wrap {
+  flex: 1 1 320px;
+  width: auto;
+}
+
+.toolbar .suggest-wrap .search-box {
+  width: 100%;
+}
+
+.suggest-list {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 4px 0;
+  list-style: none;
+  max-height: 320px;
+  overflow-y: auto;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(16, 24, 40, 0.12);
+}
+
+.suggest-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
+.suggest-list li:hover,
+.suggest-list li.active {
+  background: var(--color-primary-soft);
+}
+
+.suggest-count {
+  color: var(--color-muted);
+  white-space: nowrap;
+}

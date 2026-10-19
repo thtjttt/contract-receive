@@ -282,6 +282,15 @@ async function start() {
     fillForEdit();
   }
   saveButton.disabled = false;
+
+  // ช่องชื่อลูกค้า: แสดงรายชื่อลูกค้าเดิมให้เลือก (สะกดตรงกันทุกครั้ง)
+  let knownContracts = [];
+  try { knownContracts = await fetchContracts(); } catch (e) { /* ไม่มีรายชื่อให้เลือก ก็พิมพ์เองได้ */ }
+  attachCustomerSuggest(fields.customer, () => knownContracts, () => {
+    setError("customer", "");
+    duplicateBox.hidden = true;
+    saveButton.textContent = saveLabel;
+  });
 }
 
 start();

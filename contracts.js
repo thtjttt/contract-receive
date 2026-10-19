@@ -182,6 +182,8 @@ function setFilter(filter) {
 }
 
 searchBox.addEventListener("input", render);
+// ช่องค้นหา: แสดงรายชื่อลูกค้าให้เลือก (จากสัญญาของทุกคน)
+attachCustomerSuggest(searchBox, () => contracts, () => render());
 filterButtons.forEach((b) => b.addEventListener("click", () => setFilter(b.dataset.filter)));
 companyButtons.forEach((b) => b.addEventListener("click", () => {
   currentCompany = b.dataset.company;
